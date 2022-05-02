@@ -45,28 +45,29 @@ namespace Parser{
 
 
     void readSerial(){
-        Debugger::log << "[Parser] : Parsing Lidar data :" << '\n';
+        //Debugger::log << "[Parser] : Parsing Lidar data :" << '\n';
 
-        Debugger::log << "[Parser] :    Looking for packet..." << '\n';
-        while (Serial3.available() > 0)
-        {
-            if (Serial3.read() == 0x54 && Serial3.available() > 46){
+        //Debugger::log << "[Parser] :    Looking for packet..." << '\n';
+        while (Serial2.available() > 46){
+            if (Serial2.read() == 0x54){
 
                 //Create a new buffer with 0 value
                 byte buffer[46];
+                
                 for (size_t i = 0; i < 46; i++)
                     buffer[i] = 0;
 
-
                 //Read the next 46 bytes
-                Serial3.readBytes(buffer, 46);
+                Serial2.readBytes(buffer, 46);
 
                 //Print bytes for debug
+                /*
                 for (size_t i = 0; i < 46; i++){
                     Serial.print(buffer[i], HEX);
                     Serial.print(" ");
                 }
                 Serial.println();
+                */
 
                 //Calculate the checksum
                 //u_int8_t crc = CalCRC8(buffer, 46);
@@ -79,7 +80,7 @@ namespace Parser{
                     return;
                 }
 
-                Debugger::log << "-------------- Packet Start --------------" << '\n';
+                //Debugger::log << "-------------- Packet Start --------------" << '\n';
 
                 LD06_DATA data;
                 data.header = 0x54;
@@ -106,21 +107,21 @@ namespace Parser{
                 {
                     data.point[i].angle = data.start_angle + (packetAngle / PACKSIZE-1)*i;
 
-                    Debugger::log << "Data.point[" << i << "] : {" << data.point[i].distance << "," << data.point[i].angle << "," << data.point[i].intensity << "}\n";
+                    Debugger::log << "Data.point[" << i << "] : {" << int(data.point[i].distance) << "," << int(data.point[i].angle) << "," << int(data.point[i].intensity) << "}\n";
                 }
 
 
 
-
+                /*
                 Debugger::log << "Data.ver_len : " << (int)data.ver_len << '\n';
                 Debugger::log << "Data.speed : " << data.speed << '\n';
                 Debugger::log << "Data.start_angle : " << data.start_angle << '\n';
                 Debugger::log << "Data.end_angle : " << data.end_angle << '\n';
                 Debugger::log << "Data.timestamp : " << data.timestamp << '\n';
                 Debugger::log << "Data.crc8 : " << (int)data.crc8 << '\n';
+                */
 
-
-                Debugger::log << "-------------- Packet End --------------" << '\n';
+                //Debugger::log << "-------------- Packet End --------------" << '\n';
             }
         }
     }

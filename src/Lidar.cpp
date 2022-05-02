@@ -13,14 +13,14 @@ namespace Lidar{
 
 	void init(){
 		pinMode(Pin::Lidar::speed, OUTPUT);
-		analogWrite(Pin::Lidar::speed, 0);
+		analogWrite(Pin::Lidar::speed, 120);
 
-		Serial3.begin(230400);
+		Serial2.begin(230400);
 	}
 
 	void update(){
 		Parser::readSerial();
-		if(Points.size() > maxCount) Points.pop();
+		while(Points.size() > maxCount) Points.pop();
 	}
 	
 	void add(Point p){

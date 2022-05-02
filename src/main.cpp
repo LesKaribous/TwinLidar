@@ -17,11 +17,12 @@ void setup(){
     //Intercom::init();
     Debugger::init();
     Lidar::init();
+    Debugger::log << "Init OK.";
 }
 
 void loop(){
     Parser::readSerial();
     Debugger::printBuffer();
     
-    delay(100);
+   //delay(1);
 }

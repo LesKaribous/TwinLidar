@@ -44,7 +44,8 @@ namespace Debugger{
     }
 
     void printBuffer(){
-        Serial.println(buffer);
+        if(log.getCursor() != 0)
+            Serial.println(buffer);
         log.reset();
     }
 
