@@ -14,7 +14,7 @@
 
 void setup(){
     //--- INIT ---
-    //Intercom::init();
+    Intercom::init();
     Debugger::init();
     Lidar::init();
     Debugger::log << "Init OK.";
@@ -22,7 +22,8 @@ void setup(){
 
 void loop(){
     Parser::readSerial();
+    //Intercom::checkSerial();
     Debugger::printBuffer();
-    
-   //delay(1);
+
+   delayMicroseconds(100);
 }
