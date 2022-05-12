@@ -1,10 +1,16 @@
 // Communication variables
+import processing.serial.*;          // Import the serial library
+Serial myPort;                       // Create the serial port object
 
 boolean connected = false;
 int baud = 115200;
 
+ArrayList<PolarPoint> PointBuffer;
+
 public void serialBegin(String port){
 
+ PointBuffer = new ArrayList<PolarPoint>();
+ 
  clicSerialBegin = true ;
  serialBegin.setCaptionLabel("re-connect");
 
@@ -41,37 +47,38 @@ public void serialStop()
 }
 
 
+
+boolean busy = false;
+
 void serialEvent(Serial p){
-  if(connected == false) connected = true;
+  if(!busy){
+    busy = true;
+    try{
+    if(connected == false) connected = true;
+    while(p.available() > 0){
   
-  while(p.available() > 0){
-    
-
-    String buffer = p.readStringUntil('\n');
-    //println(buffer);
+      String buffer = p.readStringUntil('\n');
+      //println(buffer);
+          
+      if(buffer.contains("Data.point[")){
         
-    if(buffer.contains("Data.point[")){
-      
-      String argStr = buffer.substring(buffer.indexOf("{")+1, buffer.indexOf("}")) ;
-      //println(argStr);
-      String args[] = argStr.split(",");
-      
-      //printArray(args);
-
-      
-      int[] value = {0,0,0};
-      for(int i = 0; i < 3; i++){
-        value[i] = Integer.parseInt(args[i]); 
-      }
-        
-      Points.add(new PolarPoint(value[0]/4000.0, (value[1]/100.0)*DEG_TO_RAD, value[2]));
-      //Points.add(new PolarPoint());
-      //println(Points.get(Points.size() - 1)._theta);
-      
-      if(Points.size() > N){
-        Points.remove(0); 
+        String argStr = buffer.substring(buffer.indexOf("{")+1, buffer.indexOf("}")) ;
+        //println(argStr);
+        String args[] = argStr.split(",");
+  
+        int[] value = {0,0,0};
+        if(args.length >= 3){
+          for(int i = 0; i < 3; i++){
+            value[i] = Integer.parseInt(args[i]); 
+          }
+        }else return;
+          
+        //if(value[0]/4000.0 < 0.5 && value[0]/4000.0 > 0.1 && value[2] > 200)
+        PointBuffer.add(new PolarPoint(toPixel(value[0]/4000.0), (value[1]/100.0)*DEG_TO_RAD, value[2]));
       }
     }
+    }catch(Exception e){}
+    busy = false;
   }
 }
 
@@ -126,7 +133,7 @@ void serialEventB(Serial p)
         float anglef = TWO_PI * (angle / 0xB400);
         
         println("[Serial] Data : p", i,":[",data0,", ",distance/300.0,", ",anglef, "]");
-        Points.add(new PolarPoint(distance/300.0, anglef, data0));
+        Points.add(new PolarPoint(distance/300.0, anglef, data0).toPoint());
       }
     }
   } 

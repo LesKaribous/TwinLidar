@@ -1,7 +1,4 @@
 import controlP5.*;                  // Import the CP5 library
-import processing.serial.*;          // Import the serial library
-
-Serial myPort;                       // Create the serial port object
 ControlP5 cp5;                       // Create the CP5 object
 
 // Console
@@ -18,8 +15,7 @@ boolean clicSerialBegin = false ;
 boolean clicSerialStop = false ;
 boolean clicSerialRefresh = false ;
 
-// GUI Visibility
-boolean GUIVisible = true;
+
 
 void createGUI()
 {
@@ -88,6 +84,12 @@ void createGUI()
    // Bring the dropdown list for serial to the front
    serialList.bringToFront();
    //----------------------------------------------------
+   
+  cp5.get(Textarea.class, "Console")      .setVisible(false);
+  cp5.get(Button.class,   "serialBegin")  .setVisible(GUIVisible);
+  cp5.get(Button.class,   "serialStop")   .setVisible(GUIVisible);
+  cp5.get(Button.class,   "serialRefresh").setVisible(GUIVisible);
+  cp5.get(ScrollableList.class, "dropdown").setVisible(GUIVisible);
 }
 
 void keyPressed()
@@ -99,10 +101,4 @@ void keyPressed()
     println("'h' - Help");
     println("'v' - Visibility of the GUI");
   }
-
-  cp5.get(Textarea.class, "Console")      .setVisible(GUIVisible);
-  cp5.get(Button.class,   "serialBegin")  .setVisible(GUIVisible);
-  cp5.get(Button.class,   "serialStop")   .setVisible(GUIVisible);
-  cp5.get(Button.class,   "serialRefresh").setVisible(GUIVisible);
-  cp5.get(ScrollableList.class, "dropdown").setVisible(GUIVisible);
 }

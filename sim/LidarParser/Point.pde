@@ -1,41 +1,65 @@
-ArrayList<PolarPoint> Points = new ArrayList<PolarPoint>();
+ArrayList<Point> Points = new ArrayList<Point>();
 
 void drawPoints(){
-  for(int i = 0; i < Points.size(); i++){
-     Points.get(i).draw(); 
+  if(Points.size() > 0);
+  for(Point p : Points){
+     p.draw();
   }
+}
+
+Point getRandom(){
+  int random = int( random( Points.size() ) );
+  if(random <= 0) random = 0;
+  return Points.get( random );
 }
 
 void randomize(){
   for(int i=0; i < 100; i++){
-    Points.add(new PolarPoint()); 
+    Points.add(new Point()); 
   }
 }
 
 class Point{
   PVector pos;
+  color c;
+  int opacity;
+  int cluster = 0;
   
   Point(){
     pos = new PVector();
     pos.x = random(-1,1);
     pos.y = random(-1,1);
+    c = color(255,0,0);
+    opacity = 255;
   }
   
   Point(float x, float y){
     pos = new PVector();
     pos.x = x;
     pos.y = y;
+    c = color(255,0,0);
+    opacity = 255;
   }
   
   Point(PVector origin){
     pos = new PVector();
     pos.x = origin.x;
     pos.y = origin.y;
+    c = color(255,0,0);
+    opacity = 255;
+  }
+  
+  void update(){
+    opacity -= 5;
+    if(opacity < 0) opacity = 0;
   }
   
   void draw(){
-    center();
-    point(pos);
+    translate(width/2, height/2);
+    strokeWeight(2);
+    stroke(c, opacity);
+    point(pos.x,pos.y);
+    //line(0,0,pos.x,pos.y);
     resetMatrix();
   }
   
@@ -63,7 +87,7 @@ class PolarPoint{
     rotate(_theta);
     strokeWeight(2);
     stroke(map(_intensity, 0,100,0,150),0,0);
-    point(toPixel(_distance),0);
+    point(_distance,0);
     strokeWeight(4);
     
     stroke(0);
@@ -74,6 +98,10 @@ class PolarPoint{
   
   void debug(){
     println("polar coordinate : [" + _theta + "°, " + _distance + " u]"); 
+  }
+  
+  Point toPoint(){
+     return new Point((_distance* cos(_theta)), (_distance*sin(_theta)));
   }
   
 };
