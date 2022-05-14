@@ -66,9 +66,8 @@ class ClusterEngine {
       }
       if(centroids.size() < 1)
         brain.reset();
-      if(centroids.size() > 120)
+      if(centroids.size() > 50)
         brain.reset();
-        //lastVariance = variance - 500;
     }else{
       centroids.add(getRandom().pos);
       lastVariance = variance;

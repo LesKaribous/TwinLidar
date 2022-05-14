@@ -13,6 +13,8 @@ namespace Lidar{
     void push(Point);
     void pop();
 
+    bool check();
+
     int count();
 
 } // namespace Lidar

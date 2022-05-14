@@ -5,15 +5,15 @@ namespace Intercom{
     bool sync = false;
 
     void init(){
-        Serial3.begin(9600);
+        Serial2.begin(9600);
     }
 
     void checkSerial(){
         if(!sync)
-            Serial3.println("TwinLidar");
-        else Serial3.println("OK");
+            Serial2.println("TwinLidar");
+        else Serial2.println("OK");
 
-        if(Serial3.available() > 0){
+        if(Serial2.available() > 0){
             String command = Serial.readStringUntil('\n');
             parseRequest(command);
         }
@@ -30,7 +30,7 @@ namespace Intercom{
             String Dist = command.substring(command.indexOf(","), stopIndex);
 
             Debugger::log << "Angle : " << Angle << ", Distance: " << Dist << "\n";
-            Serial3.println("OK");
+            Serial2.println("OK");
         }else if(command.startsWith("Twinsystem")) sync = true;
     }
 

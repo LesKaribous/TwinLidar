@@ -4,35 +4,60 @@
 #include "Pin.h"
 #include "Geometry.h"
 
-#include <queue>
+#include <vector>
 
 namespace Lidar{
 
-	std::queue<Point> Points;
+	std::vector<Point> Points;
 	int maxCount = 500;
 
 	void init(){
 		pinMode(Pin::Lidar::speed, OUTPUT);
 		analogWrite(Pin::Lidar::speed, 120);
 
-		Serial2.begin(230400);
+		Serial3.begin(230400);
 	}
 
 	void update(){
 		Parser::readSerial();
-		while(Points.size() > maxCount) Points.pop();
+		while(count() > maxCount) pop();
 	}
 	
-	void add(Point p){
-		Points.push(p);
+	void push(Point p){
+		Points.push_back(p);
 	}
 
 	int count(){
 		return Points.size();
 	}
 
-	void remove(){
-		Points.pop();
+	void pop(){
+		Points.erase(Points.begin());
 	}
 
+	bool check(){
+		float angleStep = 10;
+		float minAngle = 0;
+		float maxAngle = 20;
+
+		float minDist = 200;
+		float maxDist = 500;
+
+		int steps = 360/angleStep;
+
+		for(int n = 0; n < steps; n++ ){
+			int count = 0;
+			for (size_t i = 0; i < Points.size(); i++){
+				if(Points[i].distance > minDist && Points[i].distance < maxDist)
+					if(Points[i].angle > minAngle && Points[i].angle > minAngle) count++;
+			}
+			if(count > 10) return true;
+			else{
+				count = 0;
+				minAngle += angleStep;
+				maxAngle += angleStep;
+			}
+		}
+		return false;
+	}
 }

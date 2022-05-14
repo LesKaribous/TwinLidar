@@ -21,7 +21,7 @@ void setup(){
 }
 
 void loop(){
-    Parser::readSerial();
+    Lidar::update();
     //Intercom::checkSerial();
     Debugger::printBuffer();
 

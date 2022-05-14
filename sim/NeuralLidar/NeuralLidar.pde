@@ -2,26 +2,41 @@
 int Nmax = 1000;
 int Nmin = 5;
 
-ClusterEngine brain;
-
 // GUI Visibility
 boolean GUIVisible = true;
 
+NeuralNetwork brain;
+
 void setup(){
   size(1280,800);
-  //frameRate(24);
+  //frameRate(24); 
   
-  brain = new ClusterEngine(50);
-  createGUI();
+  int[] layers = new int[3];
+  layers[0] = 30;
+  layers[1] = 30;
+  layers[2] = 1;
   
-  serialBegin("COM4");
-
+  brain = new NeuralNetwork(20, 30, 1, 0.01);
+  
+  //createGUI();
+  
+  //serialBegin("COM4");
 }
 
 
-
 void draw(){
-  background(200);
+  
+  
+  float[] data = new float[20];
+  
+  for(int i = 0; i < data.length ; i++) 
+    data[i] = random(50);
+    
+  println(brain.feedForward(data));
+}
+
+/*
+void draw(){
   if(PointBuffer.size() > 0 && !busy){
     busy = true;
     for(PolarPoint pp : PointBuffer){ 
@@ -48,7 +63,7 @@ void draw(){
   
   if(Points.size() > Nmin/2){
     if(brain.centroids.size() > 0){
-
+      background(200);
       coordSystem.draw();
       
       drawPoints();
@@ -57,7 +72,8 @@ void draw(){
         brain.compute();
       
       
-      //lidar.draw();
+      lidar.draw();
     }else brain.reset();
   }
 }
+*/

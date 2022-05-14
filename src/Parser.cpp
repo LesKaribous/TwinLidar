@@ -2,10 +2,13 @@
 #include "Debugger.h"
 #include "Pin.h"
 #include "Lidar.h"
+#include "Settings.h"
 
 #include <OneWire.h>
 
 namespace Parser{
+
+    int badCrC = 0;
 
     static const uint8_t CrcTable[256] = {
         0x00, 0x4d, 0x9a, 0xd7, 0x79, 0x34, 0xe3,
@@ -41,91 +44,61 @@ namespace Parser{
         return crc;
     }
 
-
-
-
     void readSerial(){
-        //Debugger::log << "[Parser] : Parsing Lidar data :" << '\n';
+        if(Serial3.available() > 500){
+            Serial.flush();
+            return;
+        }
+        if(Serial3.available() > 46){
+            byte packet[47];
+            byte header = Serial3.read();
+            if (header != 0x54) return;
 
-        //Debugger::log << "[Parser] :    Looking for packet..." << '\n';
-        while (Serial2.available() > 46){
-            if (Serial2.read() == 0x54){
+            Serial3.readBytes(packet+1, 46);      //Read the next 46 bytes and store them from element 1 in packet byte array
+            packet[0] = header;
 
-                //Create a new buffer with 0 value
-                byte buffer[46];
-                
-                for (size_t i = 0; i < 46; i++)
-                    buffer[i] = 0;
-
-                //Read the next 46 bytes
-                Serial2.readBytes(buffer, 46);
-
-                //Print bytes for debug
-                /*
-                for (size_t i = 0; i < 46; i++){
-                    Serial.print(buffer[i], HEX);
-                    Serial.print(" ");
-                }
-                Serial.println();
-                */
-
-                //Calculate the checksum
-                //u_int8_t crc = CalCRC8(buffer, 46);
-                u_int8_t crc = buffer[45]; //disable CRC
-                if (crc != buffer[45]){
-                    Serial.print("[Parser] Error : Checksum Failed : ") ;
-                    Serial.print(crc);
-                    Serial.print(" != ");
-                    Serial.println(buffer[45]);
-                    return;
-                }
-
-                //Debugger::log << "-------------- Packet Start --------------" << '\n';
-
-                LD06_DATA data;
-                data.header = 0x54;
-                data.ver_len = buffer[0];
-                data.speed = buffer[2] << 8 | buffer[1]; // Un pêtit doute
-                data.start_angle = buffer[4] << 8 | buffer[3];
-
-                // data.ver_len is supposed to be equal to PACKSIZE
-                for (size_t i = 0; i < PACKSIZE /*data.ver_len*/; i++)
-                {
-
-                    uint16_t distance = buffer[6 + i * 3] << 8 | buffer[5 + i * 3];
-                    uint8_t intensity = buffer[7 + i * 3];
-
-                    data.point[i] = Point(distance, 0, intensity);
-                }
-
-                data.end_angle = buffer[42] << 8 | buffer[41];
-                data.timestamp = buffer[44] << 8 | buffer[43];
-                data.crc8 = buffer[45];
-
-                float packetAngle = data.end_angle - data.start_angle;
-                for (size_t i = 0; i < PACKSIZE /*data.ver_len*/; i++)
-                {
-                    data.point[i].angle = data.start_angle + (packetAngle / PACKSIZE-1)*i;
-
-                    Debugger::log << "Data.point[" << i << "] : {" << int(data.point[i].distance) << "," << int(data.point[i].angle) << "," << int(data.point[i].intensity) << "}\n";
-                }
-
-
-
-                /*
-                Debugger::log << "Data.ver_len : " << (int)data.ver_len << '\n';
-                Debugger::log << "Data.speed : " << data.speed << '\n';
-                Debugger::log << "Data.start_angle : " << data.start_angle << '\n';
-                Debugger::log << "Data.end_angle : " << data.end_angle << '\n';
-                Debugger::log << "Data.timestamp : " << data.timestamp << '\n';
-                Debugger::log << "Data.crc8 : " << (int)data.crc8 << '\n';
-                */
-
-                //Debugger::log << "-------------- Packet End --------------" << '\n';
+            u_int8_t crc = CalCRC8(packet, 46);   //Calculate the checksum
+            if (crc != packet[46]){
+                badCrC++;
+                Debugger::log << "[Parser] Error : Checksum Failed : ";
+                return;
             }
+
+            //Parse data
+            LD06_DATA data;
+            data.header = 0x54;
+            data.ver_len = packet[1];
+            data.speed = packet[3] << 8 | packet[2];
+            data.start_angle = packet[5] << 8 | packet[4];
+
+            // data.ver_len is supposed to be equal to PACKSIZE
+            for (size_t i = 0; i < PACKSIZE; i++){
+                uint16_t distance = packet[7 + i * 3] << 8 | packet[6 + i * 3];
+                uint8_t intensity = packet[8 + i * 3];
+                data.point[i] = Point(distance, 0, intensity);
+            }
+
+            data.end_angle = packet[43] << 8 | packet[42];
+            data.timestamp = packet[45] << 8 | packet[44];
+            data.crc8 = packet[46];
+
+            float packetAngle = data.end_angle - data.start_angle;
+            for (size_t i = 0; i < PACKSIZE /*data.ver_len*/; i++){
+                data.point[i].angle = data.start_angle + (packetAngle / PACKSIZE-1)*i;                
+                if(data.point[i].distance < Settings::maxDist && data.point[i].distance > Settings::minDist){
+                    /*
+                    Debugger::log << "Data.point[" << i << "] : {" 
+                        << int(data.point[i].distance) << ","
+                        << int(data.point[i].angle) << "," 
+                        << int(data.point[i].intensity)
+                        << "}\n";
+                    */
+                    Lidar::push(data.point[i]);
+                }
+            }
+        
         }
     }
-
 }
 
 Point::Point(uint16_t _distance, uint16_t _angle, uint8_t _intensity)
