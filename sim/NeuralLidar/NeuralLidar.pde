@@ -2,22 +2,12 @@
 int Nmax = 1000;
 int Nmin = 5;
 
-// GUI Visibility
 boolean GUIVisible = true;
 
 NeuralNetwork brain;
 
 void setup(){
   size(1280,800);
-  //frameRate(24); 
-  
-  int[] layers = new int[3];
-  layers[0] = 30;
-  layers[1] = 30;
-  layers[2] = 1;
-  
-  brain = new NeuralNetwork(20, 30, 1, 0.01);
-  
   //createGUI();
   
   //serialBegin("COM4");

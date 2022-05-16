@@ -5,8 +5,8 @@ class Point{
   float _x, _y;
  
   Point(){
-    _x = random(-1,1);
-    _y = random(-1,1);
+    _x = random(0,1);
+    _y = random(0,1);
   }
   
   Point(float x, float y){

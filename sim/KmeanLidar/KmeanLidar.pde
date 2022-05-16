@@ -1,5 +1,5 @@
 
-int Nmax = 1000;
+int Nmax = 500;
 int Nmin = 5;
 
 ClusterEngine brain;
@@ -9,17 +9,16 @@ boolean GUIVisible = true;
 
 void setup(){
   size(1280,800);
-  //frameRate(24);
   
   brain = new ClusterEngine(50);
   createGUI();
   
-  serialBegin("COM4");
+  serialBegin("COM3");
 
 }
 
 
-
+float lastFrame = 0;
 void draw(){
   if(PointBuffer.size() > 0 && !busy){
     busy = true;
@@ -42,7 +41,7 @@ void draw(){
       Points.remove(p);
       i--;
     }
-  }
+  }  
   
   
   if(Points.size() > Nmin/2){
@@ -52,11 +51,14 @@ void draw(){
       
       drawPoints();
       
-      for(int i=0; i<5; i++);
-        brain.compute();
+      //for(int i=0; i<5; i++);
+        //brain.compute();
       
       
       lidar.draw();
     }else brain.reset();
   }
+  
+  println("Framerate : " + 6000 / (millis() - lastFrame));
+  lastFrame = millis();
 }

@@ -86,13 +86,13 @@ namespace Parser{
             for (size_t i = 0; i < PACKSIZE /*data.ver_len*/; i++){
                 data.point[i].angle = data.start_angle + (packetAngle / PACKSIZE-1)*i;                
                 if(data.point[i].distance < Settings::maxDist && data.point[i].distance > Settings::minDist){
-                    /*
+                    
                     Debugger::log << "Data.point[" << i << "] : {" 
                         << int(data.point[i].distance) << ","
                         << int(data.point[i].angle) << "," 
                         << int(data.point[i].intensity)
                         << "}\n";
-                    */
+                    
                     Lidar::push(data.point[i]);
                 }
             }

@@ -25,5 +25,5 @@ void loop(){
     //Intercom::checkSerial();
     Debugger::printBuffer();
 
-   delayMicroseconds(100);
+   //delayMicroseconds(100);
 }

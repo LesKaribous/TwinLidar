@@ -30,6 +30,7 @@ class ClusterEngine {
       }
     }
 
+    //Move clusters
     for (PVector c : centroids) {
       PVector force = new PVector(0, 0);
       int count = 0;

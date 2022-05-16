@@ -58,7 +58,7 @@ void serialEvent(Serial p){
     while(p.available() > 0){
   
       String buffer = p.readStringUntil('\n');
-      //println(buffer);
+      println(buffer);
           
       if(buffer.contains("Data.point[")){
         
@@ -80,61 +80,4 @@ void serialEvent(Serial p){
     }catch(Exception e){}
     busy = false;
   }
-}
-
-
-
-
-
-
-
-
-
-
-
-void serialEventB(Serial p)
-{
-  if(connected == false) connected = true;
-   
-  int pack_type   = 0;
-  int data_length = 0;
-  int start_angle = 0;
-  int stop_angle  = 0;
-
-  if(p.available() >= 10){
-    if(p.readChar() == 0xAA && p.readChar() == 0x55){
-      char[] headerBuffer = new char[8];
-      for(int i = 0; i < 8; i++){
-        headerBuffer[i] = p.readChar();
-      }
-        
-      pack_type = headerBuffer[0];
-      data_length = headerBuffer[1];
-      start_angle = headerBuffer[3] << 8 + headerBuffer[2];
-      stop_angle = headerBuffer[5] << 8 + headerBuffer[4];
-      
-      int delta = stop_angle - start_angle;
-      if(stop_angle < start_angle)
-          delta =  0xB400 - start_angle + stop_angle;
-  
-        float angle_per_sample = 0;
-        if(delta > 1)
-          angle_per_sample = delta / (data_length-1);
-      
-      println("[Serial] Header : t=", pack_type, " l=", data_length, " a0=", start_angle, " a1=", stop_angle);
-      
-      for(int i = 0; i < data_length; i++){
-        int data0 = int(p.readChar());
-        int data1 = int(p.readChar());
-        int data2 = int(p.readChar());
-        
-        int distance = (data2  << 8) + data1 ;
-        float angle = (start_angle + angle_per_sample * i);
-        float anglef = TWO_PI * (angle / 0xB400);
-        
-        println("[Serial] Data : p", i,":[",data0,", ",distance/300.0,", ",anglef, "]");
-        Points.add(new PolarPoint(distance/300.0, anglef, data0).toPoint());
-      }
-    }
-  } 
 }
