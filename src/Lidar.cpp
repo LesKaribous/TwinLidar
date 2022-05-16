@@ -11,6 +11,9 @@ namespace Lidar{
 	std::vector<Point> Points;
 	int maxCount = 500;
 
+	float angleMin = 0;
+    float angleMax = 30;
+
 	void init(){
 		pinMode(Pin::Lidar::speed, OUTPUT);
 		analogWrite(Pin::Lidar::speed, 120);
@@ -20,6 +23,11 @@ namespace Lidar{
 
 	void update(){
 		Parser::readSerial();
+
+		for(std::vector<Point>::iterator it = Points.begin() ; it != Points.end(); ++it){
+			if(millis() - it->birthday > 800) Points.erase(it);
+		}
+
 		while(count() > maxCount) pop();
 	}
 	
@@ -36,28 +44,12 @@ namespace Lidar{
 	}
 
 	bool check(){
-		float angleStep = 10;
-		float minAngle = 0;
-		float maxAngle = 20;
+		
+	}
 
-		float minDist = 200;
-		float maxDist = 500;
-
-		int steps = 360/angleStep;
-
-		for(int n = 0; n < steps; n++ ){
-			int count = 0;
-			for (size_t i = 0; i < Points.size(); i++){
-				if(Points[i].distance > minDist && Points[i].distance < maxDist)
-					if(Points[i].angle > minAngle && Points[i].angle > minAngle) count++;
-			}
-			if(count > 10) return true;
-			else{
-				count = 0;
-				minAngle += angleStep;
-				maxAngle += angleStep;
-			}
-		}
-		return false;
+    void setFOV(float angle, float width){
+		float angleMin = angle - width/2.0;
+    	float angleMax = angle + width/2.0;
+		Points.clear();
 	}
 }

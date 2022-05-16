@@ -9,6 +9,8 @@ struct Point{
     float distance, angle;
     int intensity;
 
+    unsigned long birthday;
+
     Point();
     Point(u_int16_t _distance, uint16_t _angle, uint8_t _intensity);
     Vec2 toVec2();

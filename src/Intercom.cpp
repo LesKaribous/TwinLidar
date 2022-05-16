@@ -2,36 +2,33 @@
 #include "Debugger.h"
 
 namespace Intercom{
-    bool sync = false;
+    bool connected = false;
+    unsigned long timeout = 0;
 
     void init(){
         Serial2.begin(9600);
     }
 
     void checkSerial(){
-        if(!sync)
-            Serial2.println("TwinLidar");
-        else Serial2.println("OK");
-
         if(Serial2.available() > 0){
             String command = Serial.readStringUntil('\n');
             parseRequest(command);
+            timeout = millis();
+            connected = true;
         }
-
-        Debugger::log << sync;
+        if( (connected && millis() - timeout > 5000) || (!connected && millis() - timeout > 1000)){
+            connected = false;
+            Serial2.println("ping");
+            Debugger::log << "ping";
+            timeout = millis();
+        }
     }
     
     void parseRequest(String command){
-        if(command.startsWith("Vec3{")){
-            int startIndex = command.indexOf("{") + 1;
-            int stopIndex = command.indexOf("}");
-
-            String Angle = command.substring(startIndex, command.indexOf(","));
-            String Dist = command.substring(command.indexOf(","), stopIndex);
-
-            Debugger::log << "Angle : " << Angle << ", Distance: " << Dist << "\n";
-            Serial2.println("OK");
-        }else if(command.startsWith("Twinsystem")) sync = true;
+        Debugger::log << command;
+        if(command == "ping"){
+            Serial2.println("pong");
+        }
     }
 
 

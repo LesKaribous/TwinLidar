@@ -7,6 +7,9 @@ namespace Lidar{
 
     extern int maxCount;
 
+    extern float angleMin;
+    extern float angleMax;
+
     void init();
     void update();
 
@@ -14,6 +17,7 @@ namespace Lidar{
     void pop();
 
     bool check();
+    void setFOV(float angle, float width);
 
     int count();
 

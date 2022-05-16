@@ -84,16 +84,21 @@ namespace Parser{
 
             float packetAngle = data.end_angle - data.start_angle;
             for (size_t i = 0; i < PACKSIZE /*data.ver_len*/; i++){
-                data.point[i].angle = data.start_angle + (packetAngle / PACKSIZE-1)*i;                
+                data.point[i].angle = data.start_angle + (packetAngle / PACKSIZE-1)*i;
+                data.point[i].angle -= 6000;
                 if(data.point[i].distance < Settings::maxDist && data.point[i].distance > Settings::minDist){
                     
-                    Debugger::log << "Data.point[" << i << "] : {" 
-                        << int(data.point[i].distance) << ","
-                        << int(data.point[i].angle) << "," 
-                        << int(data.point[i].intensity)
-                        << "}\n";
-                    
-                    Lidar::push(data.point[i]);
+                    if(data.point[i].angle/100 < Lidar::angleMax && data.point[i].angle/100 > Lidar::angleMin){
+                        Lidar::push(data.point[i]);
+                        /*
+                        Debugger::log << "count=" << Lidar::count() << '\n';
+                        Debugger::log << "Data.point[" << i << "] : {" 
+                                      << int(data.point[i].distance) << ","
+                                      << int(data.point[i].angle) << "," 
+                                      << int(data.point[i].intensity)
+                                      << "}\n";
+                        */
+                    }
                 }
             }
         
@@ -106,6 +111,7 @@ Point::Point(uint16_t _distance, uint16_t _angle, uint8_t _intensity)
     distance = _distance;
     angle = _angle;
     intensity = _intensity;
+    birthday = millis();
 }
 
 Point::Point()
@@ -113,6 +119,7 @@ Point::Point()
     distance = 0;
     angle = 0;
     intensity = 0;
+    birthday = millis();
 }
 
 Vec2 Point::toVec2()

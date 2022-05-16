@@ -4,14 +4,15 @@ void center(){
 }
 
 float toPixel(float value){
-  return map(value, 0, 1, 0, width/2);
+  return map(value, 0.0, maxDist, 0.0, width/2.0);
 }
 
 PVector toPixel(PVector value){
-  PVector copy = value.copy();
-  copy.x = map(value.x, -1, 1, 0, width);
-  copy.y = map(value.y, -1, 1, 0, width);
-  return copy;
+  return new PVector(toPixel(value.x), toPixel(value.y));
+}
+
+float toUnit(float value){
+  return map(value, 0.0, width/2, 0.0, maxDist);
 }
 
 void circle(float r){
@@ -44,11 +45,6 @@ void line(PVector a, PVector b){
   a = toPixel(a);
   b = toPixel(b);
   line(a.x, a.y, b.x, b.y);
-}
-
-void resetStroke(){
-  stroke(0);
-  strokeWeight(1);
 }
 
 void resetFill(){

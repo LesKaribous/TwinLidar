@@ -28,7 +28,7 @@ void serialEvent(Serial p) {
           String argStr = buffer.substring(buffer.indexOf("{")+1, buffer.indexOf("}")) ;
           String args[] = argStr.split(",");
 
-          int[] value = {0, 0, 0};
+          float[] value = {0, 0, 0};
           if (args.length >= 3) {
             for (int i = 0; i < 3; i++) {
               value[i] = Integer.parseInt(args[i]);
@@ -36,7 +36,7 @@ void serialEvent(Serial p) {
             
           } else return;
 
-          if(value[2] > 180){ //remove bad points
+          if(value[2] > 200){ //remove bad points
             savePoint(value[0], value[1], value[2]);
             while (points.size() > N) points.remove(0);
               serialCounter++;
@@ -46,6 +46,9 @@ void serialEvent(Serial p) {
                 serialCounter = 0;
               }
           }
+        }else if(buffer.contains("count=")){
+          String argStr = buffer.substring(buffer.indexOf("=")+1, buffer.length());
+          println(argStr);
         }
       }
       myPort.clear();
