@@ -24,6 +24,7 @@ namespace Intercom{
             ping = millis();
         }else if(connected && millis() - timeout > 5000){
             connected = false;
+            Debugger::log << "Main board connection timed out";
         }
     }
     
@@ -31,26 +32,30 @@ namespace Intercom{
         if(command.startsWith("ping")){
 
             Serial2.println("pong");
-            
+
         }else if(command.startsWith("pong")){
 
             connected = true;
             timeout = millis();
 
-        }else if( command.startsWith("setFov(") ){
+        }else if( command.startsWith("setFov") ){
 
             String argString = command.substring(command.indexOf("(") +1, command.indexOf(")"));
             String angleStr = argString.substring(0, argString.indexOf(','));
-            String widthStr = argString.substring(argString.indexOf(',')+1, argString.length());
+            String widthStr = argString.substring(argString.indexOf(',')+1, argString.lastIndexOf(',')-1);
+            String distStr  = argString.substring(argString.lastIndexOf(',')+1, argString.length());
 
             float angle = float(angleStr.toInt()) / 100.0f;
             float width = float(widthStr.toInt()) / 100.0f;
+            float dist = float(widthStr.toInt()) / 100.0f;
 
-            Debugger::log << angle << " : " << width;
+            Debugger::log << angle << " : " << width << ":" << dist;
             Lidar::setFOV(angle, width);
 
-        }else if( command.startsWith("isOpponent(") ){
-
+        }else if( command.startsWith("getPointCount") ){
+            Serial2.print("count(");
+            Serial2.print(Lidar::count());
+            Serial2.println(")");
         }
     }
 

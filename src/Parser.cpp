@@ -56,7 +56,7 @@ namespace Parser{
             u_int8_t crc = CalCRC8(packet, 46);   //Calculate the checksum
             if (crc != packet[46]){
                 badCrC++;
-                Debugger::log << "[Parser] Error : Checksum Failed : ";
+                Debugger::log << "[Parser] Error : Checksum Failed : " << badCrC;
                 return;
             }
 
@@ -86,14 +86,14 @@ namespace Parser{
                     
                     if(data.point[i].angle/100 < Lidar::angleMax && data.point[i].angle/100 > Lidar::angleMin){
                         Lidar::push(data.point[i]);
-                        /*
+                        
                         Debugger::log << "count=" << Lidar::count() << '\n';
                         Debugger::log << "Data.point[" << i << "] : {" 
                                       << int(data.point[i].distance) << ","
                                       << int(data.point[i].angle) << "," 
                                       << int(data.point[i].intensity)
                                       << "}\n";
-                        */
+                        
                     }
                 }
             }

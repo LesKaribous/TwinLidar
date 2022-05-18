@@ -12,18 +12,18 @@ namespace Lidar{
 	int maxCount = 500;
 
 	float angleMin = 0;
-    float angleMax = 30;
+    float angleMax = 90;
 
 	void init(){
-		//pinMode(Pin::Lidar::speed, OUTPUT);
-		//analogWrite(Pin::Lidar::speed, 50);
+		pinMode(Pin::Lidar::speed, OUTPUT);
+		analogWrite(Pin::Lidar::speed, 50);
 
 		Serial3.begin(230400);
 	}
 
 	void update(){
 		Parser::readSerial();
-		
+
 		for(std::vector<Point>::iterator it = Points.begin() ; it != Points.end(); ++it){
 			if(millis() - it->birthday > 800) Points.erase(it);
 		}
@@ -44,12 +44,12 @@ namespace Lidar{
 	}
 
 	bool check(){
-		
+		return (count() > 50);
 	}
 
     void setFOV(float angle, float width){
-		float angleMin = angle - width/2.0;
-    	float angleMax = angle + width/2.0;
+		angleMin = angle - width/2.0;
+    	angleMax = angle + width/2.0;
 		Points.clear();
 	}
 }
