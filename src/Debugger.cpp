@@ -26,8 +26,7 @@ namespace Debugger{
         Serial.begin(115200);
 
         while (!Serial && millis() < 500) {
-            //Waiting for serial
-            //21-04-2022 - @Nadar - Diminution de 5000ms à 500ms
+            
         }
         header();
         Serial.print("Preparing system...");

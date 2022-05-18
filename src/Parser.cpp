@@ -45,10 +45,6 @@ namespace Parser{
     }
 
     void readSerial(){
-        if(Serial3.available() > 500){
-            Serial.flush();
-            return;
-        }
         if(Serial3.available() > 46){
             byte packet[47];
             byte header = Serial3.read();

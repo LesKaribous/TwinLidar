@@ -12,7 +12,7 @@ namespace Pin{
     namespace Lidar{
         const int
             Rx = 7,
-            speed =  10;
+            speed =  6;
     }   
 }   
 

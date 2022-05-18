@@ -24,6 +24,4 @@ void loop(){
     Lidar::update();
     Intercom::checkSerial();
     Debugger::printBuffer();
-
-   //delayMicroseconds(100);
 }

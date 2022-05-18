@@ -15,15 +15,15 @@ namespace Lidar{
     float angleMax = 30;
 
 	void init(){
-		pinMode(Pin::Lidar::speed, OUTPUT);
-		analogWrite(Pin::Lidar::speed, 120);
+		//pinMode(Pin::Lidar::speed, OUTPUT);
+		//analogWrite(Pin::Lidar::speed, 50);
 
 		Serial3.begin(230400);
 	}
 
 	void update(){
 		Parser::readSerial();
-
+		
 		for(std::vector<Point>::iterator it = Points.begin() ; it != Points.end(); ++it){
 			if(millis() - it->birthday > 800) Points.erase(it);
 		}

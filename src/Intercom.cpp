@@ -1,9 +1,13 @@
 #include "Intercom.h"
 #include "Debugger.h"
+#include "Lidar.h"
+
+//TwinLidar use Serial2 to communicate with motherboard
 
 namespace Intercom{
     bool connected = false;
     unsigned long timeout = 0;
+    unsigned long ping = 0;
 
     void init(){
         Serial2.begin(9600);
@@ -11,23 +15,42 @@ namespace Intercom{
 
     void checkSerial(){
         if(Serial2.available() > 0){
-            String command = Serial.readStringUntil('\n');
+            String command = Serial2.readStringUntil('\n');
             parseRequest(command);
-            timeout = millis();
-            connected = true;
         }
-        if( (connected && millis() - timeout > 5000) || (!connected && millis() - timeout > 1000)){
-            connected = false;
+        
+        if(millis() - ping > 1000){
             Serial2.println("ping");
-            Debugger::log << "ping";
-            timeout = millis();
+            ping = millis();
+        }else if(connected && millis() - timeout > 5000){
+            connected = false;
         }
     }
     
     void parseRequest(String command){
-        Debugger::log << command;
-        if(command == "ping"){
+        if(command.startsWith("ping")){
+
             Serial2.println("pong");
+            
+        }else if(command.startsWith("pong")){
+
+            connected = true;
+            timeout = millis();
+
+        }else if( command.startsWith("setFov(") ){
+
+            String argString = command.substring(command.indexOf("(") +1, command.indexOf(")"));
+            String angleStr = argString.substring(0, argString.indexOf(','));
+            String widthStr = argString.substring(argString.indexOf(',')+1, argString.length());
+
+            float angle = float(angleStr.toInt()) / 100.0f;
+            float width = float(widthStr.toInt()) / 100.0f;
+
+            Debugger::log << angle << " : " << width;
+            Lidar::setFOV(angle, width);
+
+        }else if( command.startsWith("isOpponent(") ){
+
         }
     }
 
