@@ -13,7 +13,7 @@ void setup(){
   brain = new ClusterEngine(50);
   createGUI();
   
-  serialBegin("COM4");
+  serialBegin("COM9");
 
 }
 

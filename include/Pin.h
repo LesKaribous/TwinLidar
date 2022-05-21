@@ -3,16 +3,12 @@
 
 namespace Pin{
      
-    //IHM    
-    namespace Serial1{
-        const int
-            Rx = 0,
-            Tx = 1;
-    }
+    const int PIXELS = 4;
+
     namespace Lidar{
         const int
             Rx = 7,
             speed =  6;
-    }   
+    }
 }   
 

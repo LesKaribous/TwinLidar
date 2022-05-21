@@ -30,5 +30,6 @@ namespace Parser{
         uint8_t crc8;
     };
 
-    void readSerial();
+    void init();
+    void readData();
 }

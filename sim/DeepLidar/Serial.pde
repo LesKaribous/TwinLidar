@@ -2,7 +2,7 @@
 import processing.serial.*;          // Import the serial library
 Serial myPort;                       // Create the serial port object
 
-int baud = 115200;
+int baud = 9600;
 
 public void serialBegin() {
   myPort = new Serial(this, Serial.list()[0], baud);
@@ -25,6 +25,7 @@ void serialEvent(Serial p) {
       while (p.available() > 0 && ptLimit < 300) {
         String buffer = p.readStringUntil('\n');
         if (buffer.contains("Data.point[")) {
+          //println(buffer);
           String argStr = buffer.substring(buffer.indexOf("{")+1, buffer.indexOf("}")) ;
           String args[] = argStr.split(",");
 

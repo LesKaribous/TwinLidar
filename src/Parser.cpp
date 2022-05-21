@@ -6,6 +6,8 @@
 
 #include <OneWire.h>
 
+#define LIDAR_SERIAL Serial3
+
 namespace Parser{
 
     int badCrC = 0;
@@ -44,25 +46,32 @@ namespace Parser{
         return crc;
     }
 
-    void readSerial(){
-        if(Serial3.available() > 46){
-            byte packet[47];
-            byte header = Serial3.read();
-            if (header != 0x54) return;
+    void init(){
+        LIDAR_SERIAL.begin(230400);
+    }
 
-            Serial3.readBytes(packet+1, 46);      //Read the next 46 bytes and store them from element 1 in packet byte array
-            packet[0] = header;
+    void readData(){
+        if(LIDAR_SERIAL.available() >= 47){
+            byte packet[47];
+            byte header = LIDAR_SERIAL.peek();
+
+            if (header != 0x54){
+                LIDAR_SERIAL.read();
+                return;
+            }
+
+            LIDAR_SERIAL.readBytes(packet, 47);      //Read the next 47 bytes and store them from element 1 in packet byte array
 
             u_int8_t crc = CalCRC8(packet, 46);   //Calculate the checksum
             if (crc != packet[46]){
                 badCrC++;
-                Debugger::log << "[Parser] Error : Checksum Failed : " << badCrC;
+                Debugger::log("Bad CrC", int(badCrC));
                 return;
             }
 
             //Parse data
             LD06_DATA data;
-            data.header = 0x54;
+            data.header = packet[0];
             data.ver_len = packet[1];
             data.speed = packet[3] << 8 | packet[2];
             data.start_angle = packet[5] << 8 | packet[4];
@@ -70,7 +79,7 @@ namespace Parser{
             // data.ver_len is supposed to be equal to PACKSIZE
             for (size_t i = 0; i < PACKSIZE; i++){
                 uint16_t distance = packet[7 + i * 3] << 8 | packet[6 + i * 3];
-                uint8_t intensity = packet[8 + i * 3];
+                uint8_t intensity = packet[8 + i * 3]; 
                 data.point[i] = Point(distance, 0, intensity);
             }
 
@@ -79,25 +88,27 @@ namespace Parser{
             data.crc8 = packet[46];
 
             float packetAngle = data.end_angle - data.start_angle;
+            float angleStep = (packetAngle / float(PACKSIZE-1));
             for (size_t i = 0; i < PACKSIZE /*data.ver_len*/; i++){
-                data.point[i].angle = data.start_angle + (packetAngle / PACKSIZE-1)*i;
-                data.point[i].angle -= 6000;
-                if(data.point[i].distance < Settings::maxDist && data.point[i].distance > Settings::minDist){
-                    
-                    if(data.point[i].angle/100 < Lidar::angleMax && data.point[i].angle/100 > Lidar::angleMin){
+                data.point[i].angle = float(data.start_angle) + angleStep*i;
+                data.point[i].angle /= -100.0f;
+                
+                if(data.point[i].distance < Lidar::distMax && data.point[i].distance > Lidar::distMin){
+                    if(data.point[i].angle < Lidar::angleMax && data.point[i].angle > Lidar::angleMin){
                         Lidar::push(data.point[i]);
-                        
-                        Debugger::log << "count=" << Lidar::count() << '\n';
-                        Debugger::log << "Data.point[" << i << "] : {" 
-                                      << int(data.point[i].distance) << ","
-                                      << int(data.point[i].angle) << "," 
-                                      << int(data.point[i].intensity)
-                                      << "}\n";
-                        
+                        int dataArray[] = {data.point[i].distance,data.point[i].angle*100, data.point[i].intensity};
+			            Debugger::logArrayN("Data.point[", i, "]:{", dataArray, 3, ',', "}");
                     }
                 }
-            }
-        
+
+                /*
+
+                */
+                /*
+                if(Lidar::isLastDifferent(data.point[i]))
+                    Lidar::push(data.point[i]);
+                */
+            }      
         }
     }
 }

@@ -2,9 +2,9 @@
 void drawPoints(){
   if(points.size() > 0);
   for(int i = points.size()-2; i >= 0; i--){
-     //points.get(i).draw();
-     points.get(i).drawCartesian();
-     if(millis() - points.get(i).birth > 800) points.remove(points.get(i));
+     points.get(i).draw();
+     //points.get(i).drawCartesian();
+     //if(millis() - points.get(i).birth > 800) points.remove(points.get(i));
   }
 }
 
@@ -33,7 +33,10 @@ int countPoint(){
 
 
 void savePoint(float dist, float angle,  float intensity){
+ 
+  
   if(dist < maxDist && dist >= minDist){
+    println(maxDist);
     Point p = new Point(dist, angle/100.0*DEG_TO_RAD, intensity);
     points.add(p);
   }

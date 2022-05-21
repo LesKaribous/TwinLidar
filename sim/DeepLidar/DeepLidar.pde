@@ -1,7 +1,7 @@
 
-int N = 800;
-float maxDist = 1000.0;
-float minDist = 200.0;
+int N = 1000;
+float maxDist = 5000.0;
+float minDist = 10.0;
 
 ArrayList<Point> points = new ArrayList<Point>();
 ArrayList<ArrayList<Point>> validData = new ArrayList<ArrayList<Point>>();

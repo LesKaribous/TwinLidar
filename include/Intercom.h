@@ -6,6 +6,7 @@ namespace Intercom{
     extern bool connected;
 
     void init();
+    void reboot();
     void checkSerial();
     void parseRequest(String);
     

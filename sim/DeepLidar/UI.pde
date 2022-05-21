@@ -30,7 +30,7 @@ void drawUI(){
   
   stroke(bad ? color(255,50,50) : color(50,255,50));
   translate(mouseX, mouseY);
-  text(countPoint() + " points", 20, 20);
+  //text(countPoint() + " points", 20, 20);
   
   stroke(bad ? color(255,50,50) : color(50,255,50));
   strokeWeight(2);

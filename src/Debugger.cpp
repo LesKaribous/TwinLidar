@@ -1,9 +1,10 @@
 #include "Debugger.h"
 
-namespace Debugger{
-    char buffer[1024];
-    EasyStringStream log(buffer, 1024);
+#include <initializer_list>
 
+namespace Debugger{
+
+    bool enabled = true;
 
     void header(){
         Serial.println("   _______       _       _      _     _");
@@ -23,30 +24,119 @@ namespace Debugger{
     }
 
     void init(){
-        Serial.begin(115200);
+        if(enabled){
+            Serial.begin(9600);
 
-        while (!Serial && millis() < 500) {
+            if(Serial.available() <= 0) {}
+
+            header();
+            Serial.print("Preparing system...");
             
+            delay(200);
+            Serial.println("done.");
         }
-        header();
-        Serial.print("Preparing system...");
-        
-        delay(200);
-        Serial.println("done.");
     }
 
     void checkSerial(){
-        if(Serial.available()){
-            String command = Serial.readStringUntil('(');
-            Serial.println("Received :" + command);
+        if(enabled){
+            if(Serial.available() > 0){
+                String command = Serial.readStringUntil('(');
+                Serial.println("Received :" + command);
+            }
         }
     }
 
-    void printBuffer(){
-        if(log.getCursor() != 0)
-            Serial.println(buffer);
-        log.reset();
+    void println(String message){
+        Serial.println(message);
     }
 
+    void println(char c){
+        Serial.println(c);
+    }
+
+    void println(float data){
+        Serial.println(data);
+    }
+
+    void println(int data){
+        Serial.println(data);
+    }
+
+    void print(String message){
+        Serial.print(message);
+    }
+
+    void print(char c){
+        Serial.print(c);
+    }
+
+    void print(float data){
+        Serial.print(data);
+    }
+
+    void print(int data){
+        Serial.print(data);
+    }
+
+
+    void log(int data){
+        println(data);
+    }
+
+    void log(char data){
+        println(data);
+    }
+
+    void log(float data){
+        println(data);
+    }
+
+    void log(String data){
+        println(data);
+    }
+
+    void log(String prefix,   int data, String suffix){
+        Serial.print(prefix);
+        Serial.print(data);
+        Serial.println(suffix);
+    }
+
+    void log(String prefix, float data, String suffix){
+        Serial.print(prefix);
+        Serial.print(data);
+        Serial.println(suffix);
+    }
+
+    void log(String prefix,  bool data, String suffix){
+        Serial.print(prefix);
+        Serial.print(data);
+        Serial.println(suffix);
+    }
+
+    void logArray(String prefix, int array[], size_t size, char separator, String suffix = ""){
+        if(size > 0){
+            print(prefix);
+            for (size_t i = 0; i < size-1; i++){
+                print(array[i]);
+                print(separator);
+            }
+            print(array[size-1]);
+            println(suffix);
+        }
+    }
+
+    void logArrayN(String prefix, int element, String interFix, int array[], size_t size, char separator = ',', String suffix = ""){
+        if(size > 0){
+            print(prefix);
+            print(element);
+            print(interFix);
+            for (size_t i = 0; i < size-1; i++){
+                print(array[i]);
+                print(separator);
+            }
+            print(array[size-1]);
+            println(suffix);
+        }else println("Invalid array printed !");
+    }
 
 }

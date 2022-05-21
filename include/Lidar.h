@@ -9,6 +9,8 @@ namespace Lidar{
 
     extern float angleMin;
     extern float angleMax;
+    extern float distMin;
+	extern float distMax;
 
     void init();
     void update();
@@ -17,8 +19,10 @@ namespace Lidar{
     void pop();
 
     bool check();
-    void setFOV(float angle, float width);
+    void setFOV(float angleRange, float distRange);
+    void lookAt(float angle, float dist);
 
+    bool isLastDifferent(Point p);
     int count();
 
 } // namespace Lidar
