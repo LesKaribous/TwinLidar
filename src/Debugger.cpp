@@ -5,7 +5,8 @@
 namespace Debugger{
 
     bool enabled = true;
-
+    Level debugLevel = WARN;
+    
     void header(){
         Serial.println("   _______       _       _      _     _");
         Serial.println("  |__   __|     (_)     | |    (_)   | |");
@@ -23,9 +24,10 @@ namespace Debugger{
 
     }
 
-    void init(){
+    void init(Level l){
         if(enabled){
-            Serial.begin(115200);
+            Serial.begin(9600);
+            debugLevel = l;
 
             if(Serial.available() <= 0) {}
 
@@ -35,6 +37,10 @@ namespace Debugger{
             delay(200);
             Serial.println("done.");
         }
+    }
+
+    Level level(){
+        return debugLevel;
     }
 
     void checkSerial(){
@@ -79,41 +85,69 @@ namespace Debugger{
     }
 
 
-    void log(int data){
+    void log(int data, Level level){
+        if(level < debugLevel) return;
         println(data);
     }
 
-    void log(char data){
+    void log(char data, Level level){
+        if(level < debugLevel) return;
         println(data);
     }
 
-    void log(float data){
+    void log(float data, Level level){
+        if(level < debugLevel) return;
         println(data);
     }
 
-    void log(String data){
+    void log(String data, Level level){
+        if(level < debugLevel) return;
         println(data);
     }
 
-    void log(String prefix,   int data, String suffix){
+    void log(String prefix,   int data, String suffix, Level level){
+        if(level < debugLevel) return;
         Serial.print(prefix);
         Serial.print(data);
         Serial.println(suffix);
     }
 
-    void log(String prefix, float data, String suffix){
+    void log(String prefix, float data, String suffix, Level level){
+        if(level < debugLevel) return;
         Serial.print(prefix);
         Serial.print(data);
         Serial.println(suffix);
     }
 
-    void log(String prefix,  bool data, String suffix){
+    void log(String prefix,  bool data, String suffix, Level level){
+        if(level < debugLevel) return;
         Serial.print(prefix);
         Serial.print(data);
         Serial.println(suffix);
     }
 
-    void logArray(String prefix, int array[], size_t size, char separator, String suffix){
+
+    void log(String prefix, int data, Level level){
+        if(level < debugLevel) return;
+        Serial.print(prefix);
+        Serial.println(data);
+    }
+
+    void log(String prefix, float data, Level level){
+        if(level < debugLevel) return;
+        Serial.print(prefix);
+        Serial.println(data);
+    }
+
+    void log(String prefix, bool data, Level level){
+        if(level < debugLevel) return;
+        Serial.print(prefix);
+        Serial.println(data);
+    }
+
+
+    void logArray(String prefix, int array[], size_t size, char separator, String suffix, Level level){
+        if(level < debugLevel) return;
         if(size > 0){
             print(prefix);
             for (size_t i = 0; i < size-1; i++){
@@ -125,7 +159,8 @@ namespace Debugger{
         }
     }
 
-    void logArrayN(String prefix, int element, String interFix, int array[], size_t size, char separator, String suffix){
+    void logArrayN(String prefix, int element, String interFix, int array[], size_t size, char separator, String suffix, Level level){
+        if(level < debugLevel) return;
         if(size > 0){
             print(prefix);
             print(element);
