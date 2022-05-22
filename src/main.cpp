@@ -17,23 +17,20 @@ void setup(){
     Lidar::init();
     Led::init();
 
-    Debugger::init();
-    Debugger::log("Init OK.");
+    Debugger::init(VERBOSE);
+    Debugger::log("Init OK.", INFO);
 
     while (!Intercom::connected){
         Intercom::checkSerial();
         Debugger::checkSerial();
         Led::update();
     }
-    
 }
-
-
 
 void loop(){
     Led::update();
     Lidar::update();
     Intercom::checkSerial();
     Debugger::checkSerial();
-    delayMicroseconds(10);
+    //delayMicroseconds(10);
 }

@@ -30,7 +30,7 @@ namespace Intercom{
             if(connected && millis() - timeout > 5000){
                 connected = false;
                 Led::idle();
-                Debugger::log("Main board connection timed out");
+                Debugger::log("Main board connection timed out", WARN);
             }
 
             TWINSYSTEM.println("ping");

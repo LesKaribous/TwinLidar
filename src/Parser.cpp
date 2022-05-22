@@ -14,7 +14,7 @@ namespace Parser{
     // CalCRC8 function declaration (See bottom)
     uint8_t CalCRC8(uint8_t *p, uint8_t len);
 
-    bool filter = true;
+    bool filter = false;
     int badCrC = 0;
 
     void init(){
@@ -38,7 +38,7 @@ namespace Parser{
             u_int8_t crc = CalCRC8(packet, 46); //Calculate the checksum
             if (crc != packet[46]){
                 badCrC++;
-                Debugger::log("Bad CrC", int(badCrC));
+                Debugger::log("Bad CrC", int(badCrC), WARN);
                 return;
             }
 
@@ -132,14 +132,6 @@ Point::Point()
     angle = 0;
     intensity = 0;
     birthday = millis();
-}
-
-Vec2 Point::toVec2()
-{
-    Vec2 buf(0, 0);
-    buf.setMag(distance);
-    buf.setHeading(angle);
-    return buf;
 }
 
 

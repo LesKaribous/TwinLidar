@@ -2,7 +2,6 @@
 #include "Parser.h"
 #include "Debugger.h"
 #include "Pin.h"
-#include "Geometry.h"
 
 #include <algorithm>
 #include <list>
@@ -41,10 +40,9 @@ namespace Lidar{
 	void update(){
 		Parser::readData();
 		
-
-		
 		filter();
-		debug();
+		
+		if(Debugger::level() <= VERBOSE) debug();
 		
 	}
 	
