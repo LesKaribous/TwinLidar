@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Geometry.h"
 #include "Parser.h"
 
 namespace Lidar{
