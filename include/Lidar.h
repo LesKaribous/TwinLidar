@@ -14,7 +14,9 @@ namespace Lidar{
 
     void init();
     void update();
-
+    
+    void setThreshold(int);
+    void filter();
     void push(Point);
     void pop();
 
@@ -22,7 +24,7 @@ namespace Lidar{
     void setFOV(float angleRange, float distRange);
     void lookAt(float angle, float dist);
 
-    bool isLastDifferent(Point p);
+    bool isLastDifferent(Point);
     int count();
 
 } // namespace Lidar

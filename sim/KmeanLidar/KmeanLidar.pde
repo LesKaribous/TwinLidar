@@ -7,15 +7,19 @@ ClusterEngine brain;
 // GUI Visibility
 boolean GUIVisible = true;
 
+Fov fov = new Fov();
+
+
 void setup(){
   size(1280,800);
   
   brain = new ClusterEngine(50);
   createGUI();
   
-  serialBegin("COM9");
+  serialBegin("COM8");
 
 }
+
 
 
 float lastFrame = 0;
@@ -50,7 +54,7 @@ void draw(){
       coordSystem.draw();
       
       drawPoints();
-      
+      fov.draw();
       //for(int i=0; i<5; i++);
         //brain.compute();
       
@@ -59,6 +63,6 @@ void draw(){
     }else brain.reset();
   }
   
-  println("Framerate : " + 6000 / (millis() - lastFrame));
+  // println("Framerate : " + 6000 / (millis() - lastFrame));
   lastFrame = millis();
 }

@@ -83,6 +83,16 @@ namespace Intercom{
             TWINSYSTEM.print("count(");
             TWINSYSTEM.print(Lidar::count());
             TWINSYSTEM.println(")");
+        }else if( command.startsWith("check") ){
+            TWINSYSTEM.print("checked(");
+            TWINSYSTEM.print(Lidar::check());
+            TWINSYSTEM.println(")");
+        }else if( command.startsWith("setThreshold") ){
+            String argString = command.substring(command.indexOf("(") +1, command.indexOf(")"));
+            float t = float(argString.toInt()) / 100.0f;
+            Lidar::setThreshold(t);
+
+            Debugger::log("Threshold : ", t);
         }
     }
 

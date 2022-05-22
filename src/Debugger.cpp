@@ -25,7 +25,7 @@ namespace Debugger{
 
     void init(){
         if(enabled){
-            Serial.begin(9600);
+            Serial.begin(115200);
 
             if(Serial.available() <= 0) {}
 
@@ -113,7 +113,7 @@ namespace Debugger{
         Serial.println(suffix);
     }
 
-    void logArray(String prefix, int array[], size_t size, char separator, String suffix = ""){
+    void logArray(String prefix, int array[], size_t size, char separator, String suffix){
         if(size > 0){
             print(prefix);
             for (size_t i = 0; i < size-1; i++){
@@ -125,7 +125,7 @@ namespace Debugger{
         }
     }
 
-    void logArrayN(String prefix, int element, String interFix, int array[], size_t size, char separator = ',', String suffix = ""){
+    void logArrayN(String prefix, int element, String interFix, int array[], size_t size, char separator, String suffix){
         if(size > 0){
             print(prefix);
             print(element);

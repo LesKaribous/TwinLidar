@@ -10,8 +10,77 @@
 
 namespace Parser{
 
+
+    // CalCRC8 function declaration (See bottom)
+    uint8_t CalCRC8(uint8_t *p, uint8_t len);
+
+    bool filter = true;
     int badCrC = 0;
 
+    void init(){
+        LIDAR_SERIAL.begin(230400);
+    }
+
+    void readData(){
+        if(LIDAR_SERIAL.available() >= 47){     //Check if a complete packet is possibly available
+            byte packet[47];                    //Create a buffer for 46 bytes + 1 byte CrC
+            byte header = LIDAR_SERIAL.peek();  //Check if the first byte is the 0x54 header
+
+            if (header != 0x54){                //If not, throw the first byte and start again
+                LIDAR_SERIAL.read();
+                return;
+            }
+
+            //Header correct.
+
+            LIDAR_SERIAL.readBytes(packet, 47); //Read the next 47 bytes and store them from element 1 in packet byte array
+
+            u_int8_t crc = CalCRC8(packet, 46); //Calculate the checksum
+            if (crc != packet[46]){
+                badCrC++;
+                Debugger::log("Bad CrC", int(badCrC));
+                return;
+            }
+
+            //Parse data according to this datasheet : https://www.ldrobot.com/editor/file/20210422/1619071627351038.pdf
+            LD06_DATA data;
+            data.header = packet[0];
+            data.ver_len = packet[1];
+            data.speed = packet[3] << 8 | packet[2];        //Useless, speed isn't used yet
+            data.start_angle = packet[5] << 8 | packet[4];  //Gather the angle at which Lidar start to measure
+
+            // data.ver_len is supposed to be equal to PACKSIZE
+            for (size_t i = 0; i < PACKSIZE; i++){  //Parse 12 points 3 bytes each
+                uint16_t distance = packet[7 + i * 3] << 8 | packet[6 + i * 3];
+                uint8_t intensity = packet[8 + i * 3]; 
+                data.point[i] = Point(distance, 0, intensity); // Create a Point object without angle
+            }
+
+            data.end_angle = packet[43] << 8 | packet[42];
+            data.timestamp = packet[45] << 8 | packet[44];
+            data.crc8 = packet[46]; //Gather the CrC
+
+            float packetAngle = data.end_angle - data.start_angle;
+            float angleStep = (packetAngle / float(PACKSIZE-1)); // Calculate the angle step
+            for (size_t i = 0; i < PACKSIZE /*data.ver_len*/; i++){
+                data.point[i].angle = float(data.start_angle) + angleStep*i;
+                data.point[i].angle /= -100.0f; //Raw angle are inverted and multiplieds by 10² convert them to degrees
+
+                if(data.point[i].angle < -180) data.point[i].angle += 360;
+                data.point[i].angle += 60.0f; //Add 180°
+
+                //Filter data according to the FOV
+                if(data.point[i].distance < Lidar::distMax && data.point[i].distance > Lidar::distMin || !filter){
+                    if(data.point[i].angle < Lidar::angleMax && data.point[i].angle > Lidar::angleMin || !filter){
+                        Lidar::push(data.point[i]);
+                    }
+                }
+            }      
+        }
+    }
+
+
+    //CRC Lookup table
     static const uint8_t CrcTable[256] = {
         0x00, 0x4d, 0x9a, 0xd7, 0x79, 0x34, 0xe3,
         0xae, 0xf2, 0xbf, 0x68, 0x25, 0x8b, 0xc6, 0x11, 0x5c, 0xa9, 0xe4, 0x33,
@@ -46,71 +115,7 @@ namespace Parser{
         return crc;
     }
 
-    void init(){
-        LIDAR_SERIAL.begin(230400);
-    }
 
-    void readData(){
-        if(LIDAR_SERIAL.available() >= 47){
-            byte packet[47];
-            byte header = LIDAR_SERIAL.peek();
-
-            if (header != 0x54){
-                LIDAR_SERIAL.read();
-                return;
-            }
-
-            LIDAR_SERIAL.readBytes(packet, 47);      //Read the next 47 bytes and store them from element 1 in packet byte array
-
-            u_int8_t crc = CalCRC8(packet, 46);   //Calculate the checksum
-            if (crc != packet[46]){
-                badCrC++;
-                Debugger::log("Bad CrC", int(badCrC));
-                return;
-            }
-
-            //Parse data
-            LD06_DATA data;
-            data.header = packet[0];
-            data.ver_len = packet[1];
-            data.speed = packet[3] << 8 | packet[2];
-            data.start_angle = packet[5] << 8 | packet[4];
-
-            // data.ver_len is supposed to be equal to PACKSIZE
-            for (size_t i = 0; i < PACKSIZE; i++){
-                uint16_t distance = packet[7 + i * 3] << 8 | packet[6 + i * 3];
-                uint8_t intensity = packet[8 + i * 3]; 
-                data.point[i] = Point(distance, 0, intensity);
-            }
-
-            data.end_angle = packet[43] << 8 | packet[42];
-            data.timestamp = packet[45] << 8 | packet[44];
-            data.crc8 = packet[46];
-
-            float packetAngle = data.end_angle - data.start_angle;
-            float angleStep = (packetAngle / float(PACKSIZE-1));
-            for (size_t i = 0; i < PACKSIZE /*data.ver_len*/; i++){
-                data.point[i].angle = float(data.start_angle) + angleStep*i;
-                data.point[i].angle /= -100.0f;
-                
-                if(data.point[i].distance < Lidar::distMax && data.point[i].distance > Lidar::distMin){
-                    if(data.point[i].angle < Lidar::angleMax && data.point[i].angle > Lidar::angleMin){
-                        Lidar::push(data.point[i]);
-                        int dataArray[] = {data.point[i].distance,data.point[i].angle*100, data.point[i].intensity};
-			            Debugger::logArrayN("Data.point[", i, "]:{", dataArray, 3, ',', "}");
-                    }
-                }
-
-                /*
-
-                */
-                /*
-                if(Lidar::isLastDifferent(data.point[i]))
-                    Lidar::push(data.point[i]);
-                */
-            }      
-        }
-    }
 }
 
 Point::Point(uint16_t _distance, uint16_t _angle, uint8_t _intensity)
@@ -136,3 +141,5 @@ Vec2 Point::toVec2()
     buf.setHeading(angle);
     return buf;
 }
+
+

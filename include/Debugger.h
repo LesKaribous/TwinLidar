@@ -26,8 +26,8 @@ namespace Debugger{
     void log(String prefix, float data, String suffix = "");
     void log(String prefix,  bool data, String suffix = "");
 
-    void logArray(String prefix, int array[], size_t size, char separator = ',', String suffix = "");
-    void logArrayN(String prefix, int element, String interFix, int array[], size_t size, char separator = ',', String suffix = "");
+    void logArray(String prefix, int array[], size_t size, char separator = ',', String suffix = ")");
+    void logArrayN(String prefix, int element, String interFix, int array[], size_t size, char separator = ',', String suffix = ")");
 
 
 }; // namespace Debugger
