@@ -9,6 +9,7 @@ namespace Intercom{
     bool connected = false;
     unsigned long timeout = 0;
     unsigned long ping = 0;
+    unsigned long lastCountSent = 0;
 
     void init(){
         TWINSYSTEM.begin(9600);
@@ -16,6 +17,12 @@ namespace Intercom{
 
     void reboot(){
         _reboot_Teensyduino_();
+    }
+
+    void sendCount(){
+        TWINSYSTEM.print("count(");
+        TWINSYSTEM.print(Lidar::count());
+        TWINSYSTEM.println(")");
     }
 
     void checkSerial(){
@@ -34,7 +41,15 @@ namespace Intercom{
 
             TWINSYSTEM.println("ping");
             ping = millis();
+
+            
         }
+
+        if(millis() - lastCountSent > 200){
+            sendCount();
+            lastCountSent = millis();
+        }
+        
     }
     
     void parseRequest(String command){

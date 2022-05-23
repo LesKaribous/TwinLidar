@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <list>
 
-#define PERSISTENCE 100
+#define PERSISTENCE 400
 #define DEBUG_REFRESS 200
 namespace Lidar{
 
