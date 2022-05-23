@@ -14,7 +14,7 @@ namespace Parser{
     // CalCRC8 function declaration (See bottom)
     uint8_t CalCRC8(uint8_t *p, uint8_t len);
 
-    bool filter = false;
+    bool filter = true;
     int badCrC = 0;
 
     void init(){

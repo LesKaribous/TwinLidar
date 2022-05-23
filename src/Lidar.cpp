@@ -2,6 +2,7 @@
 #include "Parser.h"
 #include "Debugger.h"
 #include "Pin.h"
+#include "Settings.h"
 
 #include <algorithm>
 #include <list>
@@ -19,7 +20,6 @@ namespace Lidar{
 	float distMax;
 
 	float angleRange;
-	float distRange;
 
 	float lookAngle;
 	float lookDistance;
@@ -32,7 +32,7 @@ namespace Lidar{
 		pinMode(Pin::Lidar::speed, OUTPUT);
 		analogWrite(Pin::Lidar::speed, 50);
 
-		setFOV(30, 50);
+		setFOV(30);
 		lookAt(0, 500);
 		Parser::init();
 	}
@@ -81,17 +81,14 @@ namespace Lidar{
 		return (count() > 50);
 	}
 
-    void setFOV(float angleR, float distR){
+    void setFOV(float angleR){
 		angleRange = angleR;
-    	distRange = distR;
 
 		angleMin = lookAngle - angleRange/2.0;
 		angleMax = lookAngle + angleRange/2.0;
 
-		distMin = lookDistance - distRange/2.0;
-		distMax = lookDistance + distRange/2.0;
-
-		Points.clear();
+		distMin = Settings::minDist ;
+		//Points.clear();
 	}
 
 	void setThreshold(int value){
@@ -105,10 +102,10 @@ namespace Lidar{
 		angleMin = lookAngle - angleRange/2.0;
 		angleMax = lookAngle + angleRange/2.0;
 
-		distMin = lookDistance - distRange/2.0;
-		distMax = lookDistance + distRange/2.0;
+		distMin = Settings::minDist ;
+		distMax = lookDistance;
 
-		Points.clear();
+		//Points.clear();
 	}
 
 

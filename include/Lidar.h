@@ -20,7 +20,7 @@ namespace Lidar{
     void pop();
 
     bool check();
-    void setFOV(float angleRange, float distRange);
+    void setFOV(float angleRange);
     void lookAt(float angle, float dist);
 
     bool isLastDifferent(Point);

@@ -15,7 +15,6 @@ namespace Intercom{
     }
 
     void reboot(){
-        TWINSYSTEM.end();
         _reboot_Teensyduino_();
     }
 
@@ -56,15 +55,12 @@ namespace Intercom{
         }else if( command.startsWith("setFov") ){
 
             String argString = command.substring(command.indexOf("(") +1, command.indexOf(")"));
-            String angleStr = argString.substring(0, argString.indexOf(','));
-            String distStr  = argString.substring(argString.indexOf(',')+1, argString.length());
+            String angleStr = argString.substring(0, argString.length());
 
             float angle = float(angleStr.toInt()) / 100.0f;
-            float dist = float(distStr.toInt()) / 100.0f;
 
             Debugger::log("Angle :", angle);
-            Debugger::log("Dist :" , dist);
-            Lidar::setFOV(angle, dist);
+            Lidar::setFOV(angle);
 
         }else if( command.startsWith("lookAt") ){
 
@@ -83,16 +79,11 @@ namespace Intercom{
             TWINSYSTEM.print("count(");
             TWINSYSTEM.print(Lidar::count());
             TWINSYSTEM.println(")");
+            Debugger::log("count(", Lidar::count(), ")", INFO);
         }else if( command.startsWith("check") ){
             TWINSYSTEM.print("checked(");
             TWINSYSTEM.print(Lidar::check());
             TWINSYSTEM.println(")");
-        }else if( command.startsWith("setThreshold") ){
-            String argString = command.substring(command.indexOf("(") +1, command.indexOf(")"));
-            float t = float(argString.toInt()) / 100.0f;
-            Lidar::setThreshold(t);
-
-            Debugger::log("Threshold : ", t);
         }
     }
 

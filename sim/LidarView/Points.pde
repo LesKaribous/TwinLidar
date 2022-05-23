@@ -33,7 +33,7 @@ class PolarPoint{
   }
   
   void draw(){
-    if(millis() - _birthday > 100)return;
+    if(millis() - _birthday > 200)return;
     
     pushMatrix();
     strokeWeight(3);
