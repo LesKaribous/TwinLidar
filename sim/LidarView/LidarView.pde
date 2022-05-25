@@ -37,3 +37,8 @@ void draw(){
   
   
 }
+
+
+void keyPressed(){
+  if(connected) lidarPort.write("toggleFilter\n");
+}

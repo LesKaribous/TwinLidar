@@ -8,5 +8,5 @@ namespace Led{
 
     void idle();
     void ready();
-
+    void detect();
 } // namespace LED

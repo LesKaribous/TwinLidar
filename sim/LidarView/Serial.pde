@@ -6,7 +6,7 @@ boolean connected = false;
 int baud = 115200;
 
 public void serialBegin(){
- String port = "COM8";
+ String port = "COM4";
  printArray(Serial.list());
  lidarPort = new Serial(this, port, baud);
  println("Serial connection has begin on port " + port);
@@ -68,7 +68,7 @@ void checkSerial(){
           value[i] = Integer.parseInt(args[i]); 
         }
       }else return;
-      println(value[0]);  
+      //println(value[0]);  
     }
   }
 }

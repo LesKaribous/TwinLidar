@@ -1,4 +1,5 @@
 #include "Debugger.h"
+#include "Parser.h"
 
 #include <initializer_list>
 
@@ -48,6 +49,8 @@ namespace Debugger{
             if(Serial.available() > 0){
                 String command = Serial.readStringUntil('(');
                 Serial.println("Received :" + command);
+
+                //if(command.startsWith("toggleFilter")) Parser::toggleFilter();
             }
         }
     }

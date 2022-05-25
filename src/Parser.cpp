@@ -14,7 +14,7 @@ namespace Parser{
     // CalCRC8 function declaration (See bottom)
     uint8_t CalCRC8(uint8_t *p, uint8_t len);
 
-    bool filter = true;
+    const bool filter = true; // True to store only points in field
     int badCrC = 0;
 
     void init(){
@@ -70,8 +70,8 @@ namespace Parser{
                 data.point[i].angle += 60.0f; //Add 180°
 
                 //Filter data according to the FOV
-                if(data.point[i].distance < Lidar::distMax && data.point[i].distance > Lidar::distMin || !filter){
-                    if(data.point[i].angle < Lidar::angleMax && data.point[i].angle > Lidar::angleMin || !filter){
+                if((data.point[i].distance < Lidar::distMax && data.point[i].distance > Lidar::distMin) || !filter){
+                    if((data.point[i].angle < Lidar::angleMax && data.point[i].angle > Lidar::angleMin) || !filter){
                         Lidar::push(data.point[i]);
                     }
                 }

@@ -7,9 +7,9 @@
 
 namespace Intercom{
     bool connected = false;
-    unsigned long timeout = 0;
-    unsigned long ping = 0;
-    unsigned long lastCountSent = 0;
+    uint32_t timeout = 0;
+    uint32_t ping = 0;
+    uint32_t lastCountSent = 0;
 
     void init(){
         TWINSYSTEM.begin(9600);
