@@ -14,12 +14,10 @@ void setup(){
   size(1280,800);
   
   brain = new ClusterEngine(50);
-  createGUI();
-  
-  serialBegin("COM8");
+
+  serialBegin("/dev/cu.usbmodem75816101");
 
 }
-
 
 
 float lastFrame = 0;
@@ -49,7 +47,7 @@ void draw(){
   
   
   if(Points.size() > Nmin/2){
-    if(brain.centroids.size() > 0){
+    if(brain.centroids.size() > 0 || true){
       background(200);
       coordSystem.draw();
       

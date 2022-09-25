@@ -11,41 +11,11 @@ public void serialBegin(String port){
 
  PointBuffer = new ArrayList<PolarPoint>();
  
- clicSerialBegin = true ;
- serialBegin.setCaptionLabel("re-connect");
-
  //printArray(Serial.list());
  myPort = new Serial(this, port, baud);
  println("Serial connection has begin on port " + port);
  myPort.bufferUntil('\n');
 }
-
-public void serialBegin(){
- if (clicSerialBegin == false)
- {
-   clicSerialBegin = true ;
-   serialBegin.setCaptionLabel("re-connect");
- }
- myPort = new Serial(this, Serial.list()[int(serialList.getValue())], baud);
- println("Serial connection has begin on port " + int(serialList.getValue()));
-}
-
-public void serialRefresh()
-{
-  clicSerialRefresh = true ;
-  serialList.clear();
-  serialList.addItems(Serial.list());
-  println("Refreshing the serial list");
-}
-
-public void serialStop()
-{
-  clicSerialStop = true ;
-  myPort.stop();
-  connected = false;
-  println("Serial connection has been stopped");
-}
-
 
 
 boolean busy = false;
