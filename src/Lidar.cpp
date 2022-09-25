@@ -7,15 +7,16 @@
 #include <algorithm>
 #include <list>
 
-#define PERSISTENCE 400
+#define PERSISTENCE 2000 // 400ms
 #define DEBUG_REFRESS 200
-namespace Lidar{
+namespace Lidar
+{
 
 	std::list<Point> Points;
 	int maxCount = 500;
 
 	float angleMin;
-    float angleMax;
+	float angleMax;
 	float distMin;
 	float distMax;
 
@@ -28,7 +29,8 @@ namespace Lidar{
 
 	void debug();
 
-	void init(){
+	void init()
+	{
 		pinMode(Pin::Lidar::speed, OUTPUT);
 		analogWrite(Pin::Lidar::speed, 50);
 
@@ -37,110 +39,130 @@ namespace Lidar{
 		Parser::init();
 	}
 
-	void update(){
+	void update()
+	{
 		Parser::readData();
-		
-		filter();
-		
-		if(Debugger::level() <= VERBOSE) debug();
-		
+
+		// filter();
+
+		if (Debugger::level() <= VERBOSE)
+			debug();
 	}
-	
-	void filter(){
+
+	void filter()
+	{
 		std::list<std::list<Point>::iterator> trash;
 
-		for(std::list<Point>::iterator it = Points.begin(); it != Points.end() ; it++){
-			if(millis() - it->birthday > PERSISTENCE){
+		for (std::list<Point>::iterator it = Points.begin(); it != Points.end(); it++)
+		{
+			if (millis() - it->birthday > PERSISTENCE)
+			{
 				trash.push_back(it);
 			}
 		}
 
-		for (std::list<Point>::iterator it : trash){
+		for (std::list<Point>::iterator it : trash)
+		{
 			Points.erase(it);
 		}
 	}
 
-	void push(Point p){
-		if(count() >= maxCount) pop();
+	void push(Point p)
+	{
+		if (count() >= maxCount)
+			pop();
 		Points.push_back(p);
 	}
 
-	int count(){
+	int count()
+	{
 		return Points.size();
 	}
 
-	void pop(){
+	void pop()
+	{
 		Points.pop_front();
 	}
 
-	bool isLastDifferent(Point p){
+	bool isLastDifferent(Point p)
+	{
 		return !(p.distance == Points.back().distance && p.angle == Points.back().angle);
 	}
 
-	bool check(){
+	bool check()
+	{
 		return (count() > 50);
 	}
 
-    void setFOV(float angleR){
+	void setFOV(float angleR)
+	{
 		angleRange = angleR;
 
-		angleMin = lookAngle - angleRange/2.0;
-		angleMax = lookAngle + angleRange/2.0;
+		angleMin = lookAngle - angleRange / 2.0;
+		angleMax = lookAngle + angleRange / 2.0;
 
-		distMin = Settings::minDist ;
-		//Points.clear();
+		distMin = Settings::minDist;
+		// Points.clear();
 	}
 
-	void setThreshold(int value){
+	void setThreshold(int value)
+	{
 		threshold = value;
 	}
 
-	void lookAt(float lookA, float lookD){
+	void lookAt(float lookA, float lookD)
+	{
 		lookAngle = lookA;
-	 	lookDistance = lookD;
+		lookDistance = lookD;
 
-		angleMin = lookAngle - angleRange/2.0;
-		angleMax = lookAngle + angleRange/2.0;
+		angleMin = lookAngle - angleRange / 2.0;
+		angleMax = lookAngle + angleRange / 2.0;
 
-		distMin = Settings::minDist ;
+		distMin = Settings::minDist;
 		distMax = lookDistance;
 
-		//Points.clear();
+		// Points.clear();
 	}
-
 
 	long unsigned int lastSent = 0;
 
-	void debug(){
+	void debug()
+	{
 
-		if(millis() - lastSent > DEBUG_REFRESS){
+		if (millis() - lastSent > DEBUG_REFRESS)
+		{
 			lastSent = millis();
-			int array[] = { angleMin*100.0f, angleMax*100.0f, distMin, distMax };
+			int array[] = {angleMin * 100.0f, angleMax * 100.0f, distMin, distMax};
 			Debugger::logArray("fov(", array, 4);
 
 			Debugger::log("count(", count(), ")");
 
-			int inc = (distMax - distMin)/10.0f;
-			for (size_t j = 0; j < 10; j++){
-				int samplingArray[] = {(j*inc) + distMin, angleMin *100, 254,0};
+			int inc = (distMax - distMin) / 10.0f;
+			for (size_t j = 0; j < 10; j++)
+			{
+				int samplingArray[] = {(j * inc) + distMin, angleMin * 100, 254, 0};
 				Debugger::logArrayN("Data.point[", 0, "]:{", samplingArray, 4, ',', "}");
 			}
-			for (size_t j = 0; j < 10; j++){
-				int samplingArray[] = {(j*inc) + distMin,angleMax*100, 254,0};
+			for (size_t j = 0; j < 10; j++)
+			{
+				int samplingArray[] = {(j * inc) + distMin, angleMax * 100, 254, 0};
 				Debugger::logArrayN("Data.point[", 0, "]:{", samplingArray, 4, ',', "}");
 			}
-            
-			for(Point p : Points){
-				
-				int inFOV = 0;
-				if(p.distance < Lidar::distMax && p.distance > Lidar::distMin){
-                    if(p.angle < Lidar::angleMax && p.angle > Lidar::angleMin){
-                        inFOV = 1;
-                    }
-                }
 
-				int dataArray[] = {p.distance,p.angle*100, p.intensity, inFOV};
-            	Debugger::logArrayN("Data.point[", 0, "]:{", dataArray, 4, ',', "}");
+			for (Point p : Points)
+			{
+
+				int inFOV = 0;
+				if (p.distance < Lidar::distMax && p.distance > Lidar::distMin)
+				{
+					if (p.angle < Lidar::angleMax && p.angle > Lidar::angleMin)
+					{
+						inFOV = 1;
+					}
+				}
+
+				int dataArray[] = {p.distance, p.angle * 100, p.intensity, inFOV};
+				Debugger::logArrayN("Data.point[", 0, "]:{", dataArray, 4, ',', "}");
 			}
 		}
 	}

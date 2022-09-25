@@ -13,24 +13,24 @@
 #include "TwinLidar.h"
 
 void setup(){
-    Intercom::init();
+    //Intercom::init();
     Lidar::init();
     Led::init();
 
     Debugger::init(VERBOSE);
     Debugger::log("Init OK.", INFO);
 
-    while (!Intercom::connected){
-        Intercom::checkSerial();
-        Debugger::checkSerial();
-        Led::update();
-    }
+    // while (!Intercom::connected){
+    //     //Intercom::checkSerial();
+    //     Debugger::checkSerial();
+    //     Led::update();
+    // }
 }
 
 void loop(){
     Led::update();
     Lidar::update();
-    Intercom::checkSerial();
+    //Intercom::checkSerial();
     Debugger::checkSerial();
     //delayMicroseconds(10);
 }

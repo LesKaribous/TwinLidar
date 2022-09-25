@@ -6,81 +6,90 @@
 
 #include <OneWire.h>
 
-#define LIDAR_SERIAL Serial3
+#define LIDAR_SERIAL Serial1
 
-namespace Parser{
-
+namespace Parser
+{
 
     // CalCRC8 function declaration (See bottom)
     uint8_t CalCRC8(uint8_t *p, uint8_t len);
 
-    const bool filter = true; // True to store only points in field
+    const bool filter = false; // True to store only points in field
     int badCrC = 0;
 
-    void init(){
+    void init()
+    {
         LIDAR_SERIAL.begin(230400);
     }
 
-    void readData(){
-        if(LIDAR_SERIAL.available() >= 47){     //Check if a complete packet is possibly available
-            byte packet[47];                    //Create a buffer for 46 bytes + 1 byte CrC
-            byte header = LIDAR_SERIAL.peek();  //Check if the first byte is the 0x54 header
+    void readData()
+    {
+        if (LIDAR_SERIAL.available() >= 47)
+        {                                      // Check if a complete packet is possibly available
+            byte packet[47];                   // Create a buffer for 46 bytes + 1 byte CrC
+            byte header = LIDAR_SERIAL.peek(); // Check if the first byte is the 0x54 header
 
-            if (header != 0x54){                //If not, throw the first byte and start again
+            if (header != 0x54)
+            { // If not, throw the first byte and start again
                 LIDAR_SERIAL.read();
                 return;
             }
 
-            //Header correct.
+            // Header correct.
 
-            LIDAR_SERIAL.readBytes(packet, 47); //Read the next 47 bytes and store them from element 1 in packet byte array
+            LIDAR_SERIAL.readBytes(packet, 47); // Read the next 47 bytes and store them from element 1 in packet byte array
 
-            u_int8_t crc = CalCRC8(packet, 46); //Calculate the checksum
-            if (crc != packet[46]){
+            u_int8_t crc = CalCRC8(packet, 46); // Calculate the checksum
+            if (crc != packet[46])
+            {
                 badCrC++;
                 Debugger::log("Bad CrC", int(badCrC), WARN);
                 return;
             }
 
-            //Parse data according to this datasheet : https://www.ldrobot.com/editor/file/20210422/1619071627351038.pdf
+            // Parse data according to this datasheet : https://www.ldrobot.com/editor/file/20210422/1619071627351038.pdf
             LD06_DATA data;
             data.header = packet[0];
             data.ver_len = packet[1];
-            data.speed = packet[3] << 8 | packet[2];        //Useless, speed isn't used yet
-            data.start_angle = packet[5] << 8 | packet[4];  //Gather the angle at which Lidar start to measure
+            data.speed = packet[3] << 8 | packet[2];       // Useless, speed isn't used yet
+            data.start_angle = packet[5] << 8 | packet[4]; // Gather the angle at which Lidar start to measure
 
             // data.ver_len is supposed to be equal to PACKSIZE
-            for (size_t i = 0; i < PACKSIZE; i++){  //Parse 12 points 3 bytes each
+            for (size_t i = 0; i < PACKSIZE; i++)
+            { // Parse 12 points 3 bytes each
                 uint16_t distance = packet[7 + i * 3] << 8 | packet[6 + i * 3];
-                uint8_t intensity = packet[8 + i * 3]; 
+                uint8_t intensity = packet[8 + i * 3];
                 data.point[i] = Point(distance, 0, intensity); // Create a Point object without angle
             }
 
             data.end_angle = packet[43] << 8 | packet[42];
             data.timestamp = packet[45] << 8 | packet[44];
-            data.crc8 = packet[46]; //Gather the CrC
+            data.crc8 = packet[46]; // Gather the CrC
 
             float packetAngle = data.end_angle - data.start_angle;
-            float angleStep = (packetAngle / float(PACKSIZE-1)); // Calculate the angle step
-            for (size_t i = 0; i < PACKSIZE /*data.ver_len*/; i++){
-                data.point[i].angle = float(data.start_angle) + angleStep*i;
-                data.point[i].angle /= -100.0f; //Raw angle are inverted and multiplieds by 10² convert them to degrees
+            float angleStep = (packetAngle / float(PACKSIZE - 1)); // Calculate the angle step
+            for (size_t i = 0; i < PACKSIZE /*data.ver_len*/; i++)
+            {
+                data.point[i].angle = float(data.start_angle) + angleStep * i;
+                data.point[i].angle /= -100.0f; // Raw angle are inverted and multiplieds by 10² convert them to degrees
 
-                if(data.point[i].angle < -180) data.point[i].angle += 360;
-                data.point[i].angle += 60.0f; //Add 180°
+                if (data.point[i].angle < -180)
+                    data.point[i].angle += 360;
+                data.point[i].angle += 60.0f; // Add 180°
 
-                //Filter data according to the FOV
-                if((data.point[i].distance < Lidar::distMax && data.point[i].distance > Lidar::distMin) || !filter){
-                    if((data.point[i].angle < Lidar::angleMax && data.point[i].angle > Lidar::angleMin) || !filter){
+                // Filter data according to the FOV
+                if ((data.point[i].distance < Lidar::distMax && data.point[i].distance > Lidar::distMin) || !filter)
+                {
+                    if ((data.point[i].angle < Lidar::angleMax && data.point[i].angle > Lidar::angleMin) || !filter)
+                    {
                         Lidar::push(data.point[i]);
                     }
                 }
-            }      
+            }
         }
     }
 
-
-    //CRC Lookup table
+    // CRC Lookup table
     static const uint8_t CrcTable[256] = {
         0x00, 0x4d, 0x9a, 0xd7, 0x79, 0x34, 0xe3,
         0xae, 0xf2, 0xbf, 0x68, 0x25, 0x8b, 0xc6, 0x11, 0x5c, 0xa9, 0xe4, 0x33,
@@ -103,18 +112,18 @@ namespace Parser{
         0x3c, 0x92, 0xdf, 0x08, 0x45, 0x19, 0x54, 0x83, 0xce, 0x60, 0x2d, 0xfa,
         0xb7, 0x5d, 0x10, 0xc7, 0x8a, 0x24, 0x69, 0xbe, 0xf3, 0xaf, 0xe2, 0x35,
         0x78, 0xd6, 0x9b, 0x4c, 0x01, 0xf4, 0xb9, 0x6e, 0x23, 0x8d, 0xc0, 0x17,
-        0x5a, 0x06, 0x4b, 0x9c, 0xd1, 0x7f, 0x32, 0xe5, 0xa8
-    };
+        0x5a, 0x06, 0x4b, 0x9c, 0xd1, 0x7f, 0x32, 0xe5, 0xa8};
 
-    uint8_t CalCRC8(uint8_t *p, uint8_t len){
+    uint8_t CalCRC8(uint8_t *p, uint8_t len)
+    {
         uint8_t crc = 0;
         uint16_t i;
-        for (i = 0; i < len; i++){
-        crc = CrcTable[(crc ^ *p++) & 0xff];
+        for (i = 0; i < len; i++)
+        {
+            crc = CrcTable[(crc ^ *p++) & 0xff];
         }
         return crc;
     }
-
 
 }
 
@@ -133,5 +142,3 @@ Point::Point()
     intensity = 0;
     birthday = millis();
 }
-
-
