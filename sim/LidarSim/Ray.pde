@@ -17,6 +17,8 @@ class Ray{
   
   void update(int it){
     
+    origin = new PVector(mouseX, mouseY);
+    
     noFill();
     strokeWeight(1);
     stroke(255);
@@ -38,7 +40,7 @@ class Ray{
     for(int n = 0; n < it; n++){
       vector.rotate(TWO_PI / it);
       vector.normalize().mult(range*2);
-
+        
       for(int i = 0; i < reflectors.size(); i++){
         PVector reflPos = reflectors.get(i).pos.copy();
         PVector reflPosRel = reflPos.copy().sub(origin);
@@ -54,14 +56,17 @@ class Ray{
             vector.normalize().mult(projX - R * cos(asin(dist.mag()/R)));
             if(vector.mag() < range){
               reflectors.get(i).collided = true;
-              brain.store(vector.copy().add(origin));
+              
+              
+              
+              brain.store(vector.copy());
             }
             
 
           } 
         }
       }
-      if(vector.mag() < range) trace();
+      trace();
     }
   }
   

@@ -18,7 +18,7 @@ void setup(){
   reflectors = new ArrayList<Reflector>();
   rays = new ArrayList<Vertex>();
   
-  lidar = new Ray(width/2, height/2,500);
+  lidar = new Ray(width/2, height/2,2000);
   reflectors.add(new Reflector(random(width), random(height), 50));
   
 

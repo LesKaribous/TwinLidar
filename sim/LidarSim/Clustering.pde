@@ -94,6 +94,8 @@ class ClusterEngine{
   
   
   void draw(){
+    pushMatrix();
+    translate(lidar.origin.x, lidar.origin.y);
     for(int i = 0; i < data.size(); i++){
       strokeWeight(2);
       stroke(255,0,0);
@@ -106,6 +108,7 @@ class ClusterEngine{
     for(int i = 0; i < clusters.size(); i++){
       clusters.get(i).draw();    
     }
+    popMatrix();
   }
   
   
