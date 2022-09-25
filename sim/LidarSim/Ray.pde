@@ -1,23 +1,32 @@
 
 class Ray{
   PVector origin;
+  PVector realOrigin;
   PVector vector;
   float range;
   boolean collision = false;
   
   Ray(float x, float y, float r){
     origin = new PVector(x,y);
+    origin.sub(mp.w/2, mp.h/2);
     vector = new PVector(2000, 0);
     range = r;
   }
   
   void trace(){
-   rays.add(new Vertex(origin, vector));
+   rays.add(new Vertex(origin.copy().add((width - mp.w)/2, (height - mp.h)/2), vector));
   }
   
   void update(int it){
     
     origin = new PVector(mouseX, mouseY);
+    origin.sub( (width - mp.w)/2, (height - mp.h)/2);
+    
+    text(origin.x, 50,50);
+    text(origin.y, 50,80);
+    
+    pushMatrix();
+    translate((width - mp.w)/2, (height - mp.h)/2);
     
     noFill();
     strokeWeight(1);
@@ -68,6 +77,7 @@ class Ray{
       }
       trace();
     }
+    popMatrix();
   }
   
   

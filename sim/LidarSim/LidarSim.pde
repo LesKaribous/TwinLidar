@@ -4,7 +4,7 @@ ClusterEngine brain;
 ArrayList<Vertex> rays;
 
 int N = 500;
-int noise = 10;
+int noise = 0;
 
 Map mp = new Map(900,600);
 
