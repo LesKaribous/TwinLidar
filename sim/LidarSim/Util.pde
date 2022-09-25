@@ -1,4 +1,6 @@
-
+void center(){
+  translate(width/2, height/2);
+}
 
 void drawVector(PVector vector){
   fill(200,60,60);

@@ -6,8 +6,10 @@ ArrayList<Vertex> rays;
 int N = 500;
 int noise = 10;
 
+Map mp = new Map(900,600);
+
 void setup(){
-  size(1200,800);
+  size(1400,900);
   frameRate(60);
   
   randomSeed(58);
@@ -25,6 +27,8 @@ void setup(){
 void draw(){
   rays.clear();
   background(52);
+  
+  mp.draw();
   
   lidar.update(300);
   brain.compute(5);
