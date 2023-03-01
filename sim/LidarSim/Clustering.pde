@@ -1,3 +1,4 @@
+// TODO check cluster location on the map 
 
 class Cluster{
   PVector origin;

@@ -26,20 +26,21 @@ class Ray{
     text(origin.y, 50,80);
     
     pushMatrix();
-    translate((width - mp.w)/2, (height - mp.h)/2);
+    translate((width - mp.w)/2, (height - mp.h)/2); // definition of the origin of the map at the top left corner
     
     noFill();
     strokeWeight(1);
     stroke(255);
-    ellipse(origin.x, origin.y, 100,100);
+    ellipse(origin.x, origin.y, 100,100); // plot the location of the robot 
     
     brain.data.clear();
     
+    // add noise to the simulation
     for(int i = 0; i < noise; i++){
       brain.store(new Point());
     }
     
-    
+    // define all reflectors as not collided
     for(int i = 0; i < reflectors.size(); i++){
      reflectors.get(i).collided = false;
     }
@@ -66,12 +67,8 @@ class Ray{
             if(vector.mag() < range){
               reflectors.get(i).collided = true;
               
-              
-              
               brain.store(vector.copy());
             }
-            
-
           } 
         }
       }
@@ -79,6 +76,4 @@ class Ray{
     }
     popMatrix();
   }
-  
-  
 }

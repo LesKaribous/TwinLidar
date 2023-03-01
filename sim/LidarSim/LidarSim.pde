@@ -19,9 +19,7 @@ void setup(){
   rays = new ArrayList<Vertex>();
   
   lidar = new Ray(width/2, height/2,2000);
-  reflectors.add(new Reflector(random(width), random(height), 50));
-  
-
+  reflectors.add(new Reflector(30, 30, 50));
 }
 
 void draw(){
@@ -31,9 +29,11 @@ void draw(){
   mp.draw();
   
   lidar.update(300);
-  brain.compute(5);
+  //brain.compute(5);
   
   for(int i = 0; i<rays.size();i++) rays.get(i).draw();
+
+  for (int i = 0; i < reflectors.size(); ++i) reflectors.get(i).display();
 
   brain.draw();
   
@@ -45,7 +45,7 @@ void mousePressed(){
   println("[Event] : Mouse pressed !");
   
   if(mousePressed && mouseButton == LEFT ){
-    reflectors.add(new Reflector(mouseX, mouseY, 50));
+    reflectors.add(new Reflector(mouseX - (width - mp.w)/2 , mouseY - (height - mp.h)/2, 50));
   }else if(mousePressed && mouseButton == RIGHT && reflectors.size() > 0){
     
     NearScan scan = new NearScan();
@@ -66,6 +66,7 @@ void mousePressed(){
 }
 
 
+// This loop update reflectors array in order to get the closest first
 void sort(){
   ArrayList<Reflector> unsortedReflectors = reflectors ;
   ArrayList<Reflector> sortedReflectors = new ArrayList<Reflector>() ;
@@ -86,5 +87,4 @@ void sort(){
   }
   
   reflectors = sortedReflectors;
-  
 }
