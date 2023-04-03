@@ -50,8 +50,8 @@ class ClusterEngine{
   
     void draw(){
         pushMatrix();
-        translate(robot.pose.x, robot.pose.y);
-        
+        translate(robot0.pose.x, robot0.pose.y); // TODO use robot id 
+
         for(int i = 0; i < data.size(); i++){
             strokeWeight(2);
             stroke(255,0,0);
