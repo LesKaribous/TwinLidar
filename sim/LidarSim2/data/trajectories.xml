@@ -3,28 +3,21 @@
     <ours>
         <robot id="0">
             <point id="0" x="0" y="0"></point>
-            <point id="1" x="10" y="10"></point>
-            <point id="2" x="20" y="20"></point>
-            <point id="3" x="30" y="30"></point>
         </robot>
 
         <robot id="1">
-
+            <point id="0" x="100" y="10"></point>
         </robot>
     </ours>
 
     <adv>
         <robot id="0">
-
+            <point id="0" x="20" y="20"></point>
         </robot>
 
         <robot id="1">
-
+            <point id="0" x="30" y="30"></point>
         </robot>
     </adv>
 
-
-    <animal id="0" species="Capra hircus">Goat</animal>
-    <animal id="1" species="Panthera pardus">Leopard</animal>
-    <animal id="2" species="Equus zebra">Zebra</animal>
 </trajectories>
