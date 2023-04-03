@@ -17,6 +17,7 @@ class Point{
   }
   
   Point(float x, float y){
+    pos = new PVector();
     pos.x = x;
     pos.y = y;
     c = color(255);
