@@ -2,7 +2,7 @@ ArrayList<Reflector> reflectors;
 
 Map mp = new Map(900,600);
 
-Robot robot;
+Robot robot0, robot1;
 
 ClusterEngine brain;
 
@@ -14,30 +14,44 @@ void setup(){
 
     randomSeed(58);
 
-    brain = new ClusterEngine(1);
-
-    robot = new Robot(0, width/2, height/2);
-
     reflectors = new ArrayList<Reflector>();
 
-    reflectors.add(new Reflector(50, 30, 50));
+    brain = new ClusterEngine(1);
+
+    robot0 = new Robot(0, width/2, height/2);
+    robot0.setMode("MOUSE");
+
+    robot1 = new Robot(1, width/2, height/2);
+    robot1.setMode("XML");
+
 }
 
 void draw(){
-    rays.clear();
     background(52);
     mp.draw();
 
-    robot.update();
-    robot.displayLocation();
+    robot0.update();
+    robot0.displayLocation();
 
-    brain.compute(10);
+    robot1.update();
 
-    robot.display();
+    robot0.display();
+    robot1.display();
 
-    for (int i = 0; i < reflectors.size(); ++i) reflectors.get(i).display();
+
+    if(frameCount % 30 == 0){
+      thread("brainThread");
+    }
 
     brain.draw();
-
 }
 
+void brainThread(){
+  brain.compute(10);  
+}
+
+void keyPressed(){
+  if(key == 'q'){
+    exit();
+  }
+}
