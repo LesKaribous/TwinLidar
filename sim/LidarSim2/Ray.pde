@@ -4,9 +4,12 @@ class Ray{
   PVector vector;
   float range;
   boolean collision = false;
+
+  ArrayList<Vertex> rays;
   
   Ray(float r){
     origin = new PVector();
+    rays = new ArrayList<Vertex>();
 
     vector = new PVector(2000, 0);
     range = r;
@@ -60,7 +63,7 @@ class Ray{
             if(vector.mag() < range){
               reflectors.get(i).collided = true;
 
-              brain.store(vector.copy());
+              brain.store(vector.copy()); // TODO create a brain for each robot
             }
           } 
         }
@@ -81,7 +84,7 @@ void sort(){
     Reflector buffer = new Reflector(0,0,0);
    
     for(int i = 0; i < unsortedReflectors.size(); i++){
-      float dist = PVector.dist(unsortedReflectors.get(i).pos, robot.pose);
+      float dist = PVector.dist(unsortedReflectors.get(i).pos, robot0.pose);
       if(dist < min){
         min = dist;
         buffer = unsortedReflectors.get(i);
