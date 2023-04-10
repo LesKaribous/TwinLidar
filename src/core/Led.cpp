@@ -1,7 +1,7 @@
-#include "Led.h"
+#include "core/Led.h"
 #include "Pin.h"
-#include "Lidar.h"
-#include "Intercom.h"
+#include "core/Lidar.h"
+#include "com/Intercom.h"
 
 #include <Arduino.h>
 #include <Adafruit_NeoPixel.h>
@@ -36,7 +36,7 @@ namespace Led{
                 pixelsChrono.restart();
                 pixels.clear(); 
                 
-                if(Lidar::count() > 8 && Intercom::connected) detect();
+                //if(Lidar::count() > 8 && Intercom::connected) detect();
 
                 if(light > 254 || light < 0) blinkState = !blinkState;
                 if(blinkState) light += lightInc;

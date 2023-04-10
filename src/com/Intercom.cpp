@@ -1,7 +1,7 @@
-#include "Intercom.h"
-#include "Debugger.h"
-#include "Lidar.h"
-#include "Led.h"
+#include "com/Intercom.h"
+#include "debug/Console.h"
+#include "core/Lidar.h"
+#include "core/Led.h"
 
 #define TWINSYSTEM Serial2
 
@@ -21,7 +21,7 @@ namespace Intercom{
 
     void sendCount(){
         TWINSYSTEM.print("count(");
-        TWINSYSTEM.print(Lidar::count());
+        //TWINSYSTEM.print(lidar.check());
         TWINSYSTEM.println(")");
     }
 
@@ -36,7 +36,7 @@ namespace Intercom{
             if(connected && millis() - timeout > 5000){
                 connected = false;
                 Led::idle();
-                Debugger::log("Main board connection timed out", WARN);
+                Console::warn("Main board connection timed out");
             }
 
             TWINSYSTEM.println("ping");
@@ -74,8 +74,8 @@ namespace Intercom{
 
             float angle = float(angleStr.toInt()) / 100.0f;
 
-            Debugger::log("Angle :", angle);
-            Lidar::setFOV(angle);
+            Console::info() << "Angle :" << angle << Console::endl;
+            //Lidar::setFOV(angle);
 
         }else if( command.startsWith("lookAt") ){
 
@@ -86,18 +86,18 @@ namespace Intercom{
             float angle = float(angleStr.toInt()) / 100.0f;
             float dist = float(distStr.toInt()) / 100.0f;
 
-            Debugger::log("Angle :", angle);
-            Debugger::log("Dist :" , dist);
-            Lidar::lookAt(angle, dist);
+            Console::info() << "Angle :" << angle << Console::endl;
+            Console::info() << "Dist :" << dist << Console::endl;
+            //Lidar::lookAt(angle, dist);
 
         }else if( command.startsWith("getPointCount") ){
             TWINSYSTEM.print("count(");
-            TWINSYSTEM.print(Lidar::count());
+            //TWINSYSTEM.print(Lidar::count());
             TWINSYSTEM.println(")");
-            Debugger::log("count(", Lidar::count(), ")", INFO);
+            //Debugger::log("count(", Lidar::count(), ")", INFO);
         }else if( command.startsWith("check") ){
             TWINSYSTEM.print("checked(");
-            TWINSYSTEM.print(Lidar::check());
+            //TWINSYSTEM.print(Lidar::check());
             TWINSYSTEM.println(")");
         }
     }
