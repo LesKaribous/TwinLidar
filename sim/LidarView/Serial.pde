@@ -25,25 +25,21 @@ void checkSerial() {
       String buffer = lidarPort.readStringUntil('\n');
       if (buffer == null) return;
       if (buffer.startsWith(">lidar:")) {
-        String dataStr = buffer.substring(buffer.indexOf(":")+1, buffer.indexOf("|ar")) ;
-        println(dataStr)        
+        String dataStr = buffer.substring(buffer.indexOf(":")+1, buffer.indexOf("|np")) ;
+        
         String args[] = dataStr.split(";");
-
+        
         for (String pointStr : args) {
-
           String argsP[] = pointStr.split(":");
-
           float[] value = {0, 0};
-
-          if (args.length == 2) {
+          
+          if (argsP.length == 2) {
 
             for (int i = 0; i < 2; i++) {
-              value[i] = Float.parseFloat(args[i]);
+              value[i] = Float.parseFloat(argsP[i]);
             }
-
-            savePoint(new PolarPoint(value[0], value[1], 255, color(255, 0, 0)));
-
-            println(value);
+                    
+            savePoint(new PolarPoint(value[1], value[0], 255, color(255, 0, 0)));
             serialCounter++;
             if (millis() - serialTimer > 500) {
               serialFreq = serialCounter*2;
@@ -52,12 +48,62 @@ void checkSerial() {
             }
           }
         }
+      }else if (buffer.startsWith(">fov:")) {
+        String dataStr = buffer.substring(buffer.indexOf(":")+1, buffer.indexOf("|np")) ;
+        
+        String args[] = dataStr.split(";");
+        if(args.length == 2){
+          String angleArg[] = args[0].split(":");
+          String distArg[] = args[1].split(":");
+         
+          int value[] = {0,0,0,0};
+          if (angleArg.length == 2 && distArg.length == 2) {
+  
+            
+            value[0] = (int)Float.parseFloat(angleArg[0]);
+            value[1] = (int)Float.parseFloat(angleArg[1]);
+            value[2] = (int)Float.parseFloat(distArg[0]);
+            value[3] = (int)Float.parseFloat(distArg[1]);
+            
+           fov.setLimit(value);
+
+          }
+        }
+      }else if (buffer.startsWith(">sectors:")) {
+        String dataStr = buffer.substring(buffer.indexOf(":")+1, buffer.indexOf("|np")) ;
+        
+        String args[] = dataStr.split(";");
+        
+        
+        sectors.clear();
+        for (String sectorsStr : args) {
+          String argsP[] = sectorsStr.split(":");
+          
+          //println(argsP);
+          
+          float[] value = {0, 0, 0, 0, 0};
+          if (argsP.length == 5) {
+
+            for (int i = 0; i < 5; i++) {
+              value[i] = Float.parseFloat(argsP[i]);
+            }
+            //println(value);
+          }
+          
+          sectors.add(new Sector(int(value[0]), int(value[1]), value[2], value[3], value[4]));
+        }
       }
     }
 }
 
 
+
+
+
 /*
+
+
+
 
  void checkSerial(){
  if(connected)

@@ -3,7 +3,7 @@ class Fov{
   
   Fov(){
      angleMin = 0;
-     angleMax = 30;
+     angleMax = 360;
      distMin = 200;
      distMax = 500;
   }

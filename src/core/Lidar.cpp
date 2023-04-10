@@ -20,16 +20,18 @@ Lidar::Lidar() : sensor(Pin::Lidar::speed, Serial1){
 void Lidar::init(){
 	sensor.begin();
 	//setFOV(30);
-	//lookAt(0, 500);
 	sensor.enableFiltering();
-	sensor.setAngleRange(0, 360);
+	sensor.enableSectoring();
+	//lookAt(180, 770);
+	lookAt(0, 500);
 	//sensor.disableCRC();
 	delay(200);
 }
 
 void Lidar::update(){
-	if(sensor.readFullScan())
+	if(sensor.readScan(500)){
 		debug();
+	}
 }
 
 void Lidar::setFOV(float angleR)
@@ -45,8 +47,8 @@ void Lidar::setFOV(float angleR)
 void Lidar::lookAt(float lookA, float lookD)
 {
 	lookAngle = lookA;
-	lookDistance = lookD;
-	float angleRange = 2* atan((Settings::robotDiameter/2)/lookDistance);
+	lookDistance = lookD + Settings::robotDiameter;
+	float angleRange = RAD_TO_DEG * (2* atan((Settings::robotDiameter)/lookDistance));
 	float angleMin = lookAngle - angleRange / 2.0;
 	float angleMax = lookAngle + angleRange / 2.0;
 
@@ -63,7 +65,10 @@ long unsigned int lastSent = 0;
 void Lidar::debug()
 {
 	//sensor.printScanTeleplot();
-	sensor.printScanLidarView();
+	//sensor.printScanLidarView();
+	sensor.printFOVLidarView();
+	sensor.printSectorsLidarView();
+
 	/*
 	if (millis() - lastSent > DEBUG_REFRESS)
 	{

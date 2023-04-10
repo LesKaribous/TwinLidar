@@ -53,8 +53,6 @@ namespace Led{
         }
     }
 
-
-
     int heatToColor(int heat){
         int blue = map(heat,minHeat, maxHeat,  255, 0);
         int color = pixels.Color(255, 255, 255);

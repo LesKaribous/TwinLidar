@@ -1,6 +1,6 @@
 
-float dScale = 100;
-float aScale = -DEG_TO_RAD;
+float dScale = 0.2;
+float aScale = DEG_TO_RAD;
 
 void center(){
   translate(width/2, height/2); 

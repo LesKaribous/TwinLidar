@@ -7,7 +7,7 @@ ArrayList<PolarPoint> Points;
 
 UI ui;
 
-int maxCount = 500;
+int maxCount = 10000;
 
 void setup(){
   size(1000,1000);
@@ -18,6 +18,7 @@ void setup(){
   fov = new Fov();
   system = new PolarSystem();
   Points = new ArrayList<PolarPoint>();
+  sectors = new ArrayList<Sector>();
 }
 
 
@@ -33,9 +34,14 @@ void draw(){
   lidar.draw();
   ui.draw();
   drawPoints();
+  drawSectors();
   
 }
 
+void mouseWheel(MouseEvent event) {
+  float e = event.getCount();
+  dScale -= e/100.0;
+}
 
 void keyPressed(){
   if(connected) lidarPort.write("toggleFilter\n");
