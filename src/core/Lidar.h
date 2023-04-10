@@ -6,6 +6,7 @@ public:
 
     Lidar();
 
+    void init();
     void update();
     bool check();
 

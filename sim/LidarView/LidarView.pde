@@ -28,13 +28,11 @@ void draw(){
   center();
   rotate(-PI/2);
 
-  
   system.draw();
   fov.draw();     
   lidar.draw();
   ui.draw();
   drawPoints();
-  
   
 }
 

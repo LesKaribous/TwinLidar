@@ -15,10 +15,14 @@ float lookDistance;
 void debug();
 
 Lidar::Lidar() : sensor(Pin::Lidar::speed, Serial1){
+}
+
+void Lidar::init(){
+	sensor.begin();
 	//setFOV(30);
 	//lookAt(0, 500);
 	sensor.enableFiltering();
-	sensor.setAngleRange();
+	sensor.setAngleRange(0, 360);
 	//sensor.disableCRC();
 	delay(200);
 }
@@ -58,7 +62,8 @@ long unsigned int lastSent = 0;
 
 void Lidar::debug()
 {
-	sensor.printScanTeleplot();
+	//sensor.printScanTeleplot();
+	sensor.printScanLidarView();
 	/*
 	if (millis() - lastSent > DEBUG_REFRESS)
 	{

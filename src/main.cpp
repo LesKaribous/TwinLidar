@@ -7,8 +7,8 @@
 //     |_| \_/\_/ |_|_| |_|______|_|\__,_|\__,_|_|                                                                            
 //
 //     Author  : Nadarbreicq, JulesTopart
-//     Version : 0.0.1
-//     Last update : 24 / 04 / 2022
+//     Version : 0.1.0
+//     Last update : 10 / 04 / 2023
                                     
 #include "TwinLidar.h"
 
@@ -19,8 +19,9 @@ void setup(){
     //Led::init();
     Console::Initialize();
     Console::SetLevel(ConsoleLevel::_INFO); 
-    Console::info("Init OK");
+    Console::info("Init OK") << Console::endl;
     
+    lidar.init();
     // while (!Intercom::connected){
     //     //Intercom::checkSerial();
     //     Debugger::checkSerial();

@@ -35,6 +35,14 @@ namespace TwinSystem {
 
 	void Console::Initialize(){
 		Serial.begin(115200);
+		Serial.println("");
+		Serial.println("   _______       _       _      _     _            ");
+		Serial.println("  |__   __|     (_)     | |    (_)   | |           ");
+		Serial.println("     | |_      ___ _ __ | |     _  __| | __ _ _ __ ");
+		Serial.println("     | \\ \\ /\\ / / | '_ \\| |    | |/ _` |/ _` | '__|");
+		Serial.println("     | |\\ V  V /| | | | | |____| | (_| | (_| | |   ");
+		Serial.println("     |_| \\_/\\_/ |_|_| |_|______|_|\\__,_|\\__,_|_|   ");                                           
+		Serial.println("");                                           
 	}
 
 	void Console::write(std::string str) {
