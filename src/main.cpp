@@ -16,21 +16,28 @@ Lidar lidar;
 
 void setup(){
     //Intercom::init();
-    //Led::init();
+    Led::init();
     Console::Initialize();
     Console::SetLevel(ConsoleLevel::_INFO); 
     Console::info("Init OK") << Console::endl;
     
     lidar.init();
-    // while (!Intercom::connected){
-    //     //Intercom::checkSerial();
-    //     Debugger::checkSerial();
-    //     Led::update();
-    // }
+
+    while (!Intercom::connected){
+        //Intercom::checkSerial();
+        //Debugger::checkSerial();
+        Led::update();
+        if(millis() > 3000){
+            Intercom::connected = true;
+            Led::ready();
+        }
+    }
+    while(millis() < 8000) Led::update();
 }
 
+
 void loop(){
-    //Led::update();
+    
     lidar.update();
     //Intercom::checkSerial();
     //delayMicroseconds(10);

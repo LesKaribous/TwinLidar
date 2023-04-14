@@ -24,7 +24,7 @@ void setup(){
 
 void draw(){
   checkSerial();
-    
+  lidarPort.clear();
   background(200);
   center();
   rotate(-PI/2);

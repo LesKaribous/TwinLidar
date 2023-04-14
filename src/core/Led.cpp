@@ -7,7 +7,7 @@
 #include <Adafruit_NeoPixel.h>
 #include <Chrono.h>
 
-#define NUM_PIXELS 7
+#define NUM_PIXELS 35
 #define REFRESH_DELAY 80.0f
 #define BLINK_DELAY 800.0f
 
@@ -28,7 +28,7 @@ namespace Led{
     void init(){
         pixels.begin();
         idle();
-        pixels.setBrightness(255);
+        pixels.setBrightness(150);
     }
     
     void update(){
@@ -43,7 +43,6 @@ namespace Led{
                 else light -= lightInc;
 
                 // Draw pixels :
-                //setFullColor(pixels.Color(light*1.0f, light*0.196f, light*0.196f));
                 pixels.setBrightness(light);
                 for (size_t i = 0; i < NUM_PIXELS; i++){
                     pixels.setPixelColor(i, ledColor[i]);
@@ -52,6 +51,7 @@ namespace Led{
                 pixels.show();
         }
     }
+
 
     int heatToColor(int heat){
         int blue = map(heat,minHeat, maxHeat,  255, 0);
@@ -74,8 +74,50 @@ namespace Led{
         setFullColor(pixels.Color(20, 255, 20));
     }
 
-    void detect(){
-        setFullColor(pixels.Color(255, 120, 0));
+    void debugLidar(Lidar& lidar){
+        pixels.clear(); 
+        float angle = 0;
+        for(int i = 0; i < NUM_PIXELS; i++){
+            angle = i*360.0/float(NUM_PIXELS);
+            float dist = lidar.getDistance(angle);
+            if(dist == 0) continue;
+            int ledCenter  = map(angle,0,359,0,NUM_PIXELS);
+            int ledRed    = map(dist,200,800,255,0);
+            int ledGreen  = map(dist,200,800,0,255);
+            pixels.setPixelColor(ledCenter, pixels.Color(ledRed,   ledGreen,   10));
+        }
+        pixels.show();
+    }
+
+    void drawAngle(int orientation, int width){
+        //  Orientation doit être inférieure à 360°
+        byte ledCenter  = map(orientation,0,359,NUM_PIXELS,0);
+        byte ledWidth   = map(width,0,1000,5,0);
+
+        byte widthColor = map(width,0,1000,255,0);
+        uint32_t color = pixels.Color(widthColor,255-widthColor,0); // Modifie la couleur en fonction de la distance
+
+        // Affiche la led de centre
+        pixels.setPixelColor(ledCenter, pixels.Color(0,   0,   255));
+
+        if (ledWidth != 0)
+        {
+            for(int i=1; i<=ledWidth; i++)
+            {
+            // Traite le décalage des leds par rapport au centre
+            int ledPos = ledCenter + i;
+            int ledNeg = ledCenter - i;
+
+            // Gestion des valeurs en dehors des limites du ring de leds
+            if ( ledPos > (NUM_PIXELS-1)) ledPos = ledPos - NUM_PIXELS ;
+            if ( ledNeg < 0 ) ledNeg = ledNeg + NUM_PIXELS ;
+
+            // Allume les leds 
+            pixels.setPixelColor(ledPos, color);
+            pixels.setPixelColor(ledNeg, color);
+            }
+        }
+        pixels.show();
     }
 
 } // namespace LED

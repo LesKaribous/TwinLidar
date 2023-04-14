@@ -2,6 +2,7 @@
 #include "debug/Console.h"
 #include "Pin.h"
 #include "Settings.h"
+#include "Led.h"
 
 #include <ld06.h>
 #include <algorithm>
@@ -19,19 +20,29 @@ Lidar::Lidar() : sensor(Pin::Lidar::speed, Serial1){
 
 void Lidar::init(){
 	sensor.begin();
-	//setFOV(30);
+	setFOV(360);
 	sensor.enableFiltering();
 	sensor.enableSectoring();
+	sensor.setSectorsResolution(10);
 	//lookAt(180, 770);
-	lookAt(0, 500);
+	//lookAt(0, 500);
 	//sensor.disableCRC();
 	delay(200);
 }
 
 void Lidar::update(){
 	if(sensor.readScan(500)){
-		debug();
+		//debug();
+		Led::debugLidar(*this);
 	}
+}
+
+std::vector<PolarVector> Lidar::getDistanceField(){
+	return sensor.getAverageDistanceField();
+}
+
+float Lidar::getDistance(float angle){
+	return sensor.getDistanceAtAngle(angle);
 }
 
 void Lidar::setFOV(float angleR)

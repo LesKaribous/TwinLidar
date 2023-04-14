@@ -33,7 +33,7 @@ class Sector{
     float angleStart = _id * (360/sectors.size());
     
     stroke(getColor());
-    strokeWeight(1);
+    strokeWeight(2);
     pushMatrix();
     rotate(DEG_TO_RAD*(angleStart + 1) + DEG_TO_RAD*((360/sectors.size())-1)/2.0);
     line(fov.distMin*dScale, 0, _max*dScale, 0);
