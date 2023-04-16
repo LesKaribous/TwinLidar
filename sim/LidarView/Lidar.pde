@@ -10,11 +10,11 @@ class Lidar{
     fill(0);
     stroke(0);
     strokeWeight(4);
-    line(5,7,10,3);
-    line(5,-7,10,-3);
+    //line(5,7,10,3);
+    //line(5,-7,10,-3);
      
     strokeWeight(1);
-    circle(10,0,4);
+    //circle(10,0,4);
     circle(10);
     
     if(animate){

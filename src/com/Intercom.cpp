@@ -1,107 +1,85 @@
 #include "com/Intercom.h"
 #include "debug/Console.h"
-#include "core/Lidar.h"
-#include "core/Led.h"
 
-#define TWINSYSTEM Serial2
+#define LIDAR_SERIAL Serial3
 
-namespace Intercom{
-    bool connected = false;
-    uint32_t timeout = 0;
-    uint32_t ping = 0;
-    uint32_t lastCountSent = 0;
+Intercom::Intercom() : _Stream(LIDAR_SERIAL) {}
 
-    void init(){
-        TWINSYSTEM.begin(9600);
+void Intercom::Initialize(){
+    LIDAR_SERIAL.begin(115200);
+}
+
+void Intercom::SendMessage(const char* message) {
+    _Stream.print(message);
+    _Stream.write('\n');
+    Console::trace("Intercom") << ">" << std::string(message) << Console::endl;
+}
+
+bool hasEnding (std::string const &fullString, std::string const &ending) {
+    if (fullString.length() >= ending.length()) {
+        return (0 == fullString.compare (fullString.length() - ending.length(), ending.length(), ending));
+    } else {
+        return false;
     }
+}
 
-    void reboot(){
-        _reboot_Teensyduino_();
-    }
+void Intercom::Update() {
+    while(_Stream.available()) {
+        _lastStream = millis();
+        char message[256];
+        int messageSize = _Stream.readBytesUntil('\n', message, sizeof(message) - 1);
+        message[messageSize] = '\0';
 
-    void sendCount(){
-        TWINSYSTEM.print("count(");
-        //TWINSYSTEM.print(lidar.check());
-        TWINSYSTEM.println(")");
-    }
-
-    void checkSerial(){
-        
-        if(TWINSYSTEM.available() > 0){
-            String command = TWINSYSTEM.readStringUntil('\n');
-            parseRequest(command);
-        }
-        
-        if(millis() - ping > 2000){
-            if(connected && millis() - timeout > 5000){
-                connected = false;
-                Led::idle();
-                Console::warn("Main board connection timed out");
-            }
-
-            TWINSYSTEM.println("ping");
-            ping = millis();
-
-            
-        }
-
-        if(millis() - lastCountSent > 200){
-            sendCount();
-            lastCountSent = millis();
-        }
-        
-    }
-    
-    void parseRequest(String command){
-        if(command.startsWith("ping")){
-
-            TWINSYSTEM.println("pong");
-
-        }else if(command.startsWith("reboot")){
-
-            reboot();
-
-        }else if(command.startsWith("pong")){
-
-            connected = true;
-            Led::ready();
-            timeout = millis();
-
-        }else if( command.startsWith("setFov") ){
-
-            String argString = command.substring(command.indexOf("(") +1, command.indexOf(")"));
-            String angleStr = argString.substring(0, argString.length());
-
-            float angle = float(angleStr.toInt()) / 100.0f;
-
-            Console::info() << "Angle :" << angle << Console::endl;
-            //Lidar::setFOV(angle);
-
-        }else if( command.startsWith("lookAt") ){
-
-            String argString = command.substring(command.indexOf("(") +1, command.indexOf(")"));
-            String angleStr = argString.substring(0, argString.indexOf(','));
-            String distStr  = argString.substring(argString.indexOf(',')+1, argString.length());
-
-            float angle = float(angleStr.toInt()) / 100.0f;
-            float dist = float(distStr.toInt()) / 100.0f;
-
-            Console::info() << "Angle :" << angle << Console::endl;
-            Console::info() << "Dist :" << dist << Console::endl;
-            //Lidar::lookAt(angle, dist);
-
-        }else if( command.startsWith("getPointCount") ){
-            TWINSYSTEM.print("count(");
-            //TWINSYSTEM.print(Lidar::count());
-            TWINSYSTEM.println(")");
-            //Debugger::log("count(", Lidar::count(), ")", INFO);
-        }else if( command.startsWith("check") ){
-            TWINSYSTEM.print("checked(");
-            //TWINSYSTEM.print(Lidar::check());
-            TWINSYSTEM.println(")");
+        Console::trace("Intercom") << "<" << message << Console::endl;
+        if (strcmp(message, "ping") == 0) {
+            OnPingReceived();
+        }else if (strcmp(message, "pong") == 0) {
+            OnPongReceived();
+        }else if ( hasEnding(std::string(message), ";")) {
+            OnCommand(message);
         }
     }
 
+    if(millis() - _lastPing > 500 && (!_connected || (_connected && millis() - _lastStream > 2000))){
+        SendMessage("ping");
+        _lastPing = millis();
+    }
+    if(_connected && millis() - _lastStream > 4000){
+        OnConnectionLost();
+    }
+}
 
+void Intercom::OnPingReceived() {
+    SendMessage("pong");
+}
 
-} // namespace Intercom
+void Intercom::OnPongReceived() {
+    if(!_connected) _connected = true;
+}
+
+void Intercom::OnConnectionLost() {
+    Console::trace("Intercom") << "Connection lost." << Console::endl;
+    _connected = false;
+}
+
+void Intercom::OnConnectionSuccess(){
+    Console::trace("Intercom") << "Connection successful." << Console::endl;
+    _connected = true;
+}
+
+void Intercom::OnCommand(std::string command){
+    Console::trace("Intercom") << "Command received " << command << Console::endl;
+    _pendingCommand.push(command.substr(0, command.find_last_of(";")));
+}
+
+bool Intercom::HasPendingCommand(){
+    return _pendingCommand.size() != 0;
+}
+
+std::string Intercom::UnstackCommand(){
+    if(HasPendingCommand()){
+        std::string command = _pendingCommand.top();
+        _pendingCommand.pop();
+        return command;
+    }else return "";
+}

@@ -1,51 +1,48 @@
 #include "core/Lidar.h"
 #include "debug/Console.h"
-#include "Pin.h"
+
 #include "Settings.h"
-#include "Led.h"
+#include "PixelRing.h"
 
 #include <ld06.h>
 #include <algorithm>
 
-#define PERSISTENCE 2000 // 400ms
-#define DEBUG_REFRESS 200
 
-float lookAngle;
-float lookDistance;
+Lidar::Lidar() : sensor(Pin::Lidar::speed, Serial1){}
 
-void debug();
-
-Lidar::Lidar() : sensor(Pin::Lidar::speed, Serial1){
-}
-
-void Lidar::init(){
+void Lidar::Initialize(){
 	sensor.begin();
-	setFOV(360);
+	
 	sensor.enableFiltering();
 	sensor.enableSectoring();
 	sensor.setSectorsResolution(10);
 	//lookAt(180, 770);
-	//lookAt(0, 500);
+	LookAt(0, 400);
+	SetFOV(90);
 	//sensor.disableCRC();
 	delay(200);
 }
 
-void Lidar::update(){
+void Lidar::Update(){
 	if(sensor.readScan(500)){
-		//debug();
-		Led::debugLidar(*this);
+		//Debug();
 	}
 }
 
-std::vector<PolarVector> Lidar::getDistanceField(){
-	return sensor.getAverageDistanceField();
-}
-
-float Lidar::getDistance(float angle){
+float Lidar::GetDistance(float angle){
 	return sensor.getDistanceAtAngle(angle);
 }
 
-void Lidar::setFOV(float angleR)
+float Lidar::GetMaxAngle(){
+	float angleRange = RAD_TO_DEG * (2* atan((Settings::robotDiameter)/lookDistance));
+	return lookAngle + angleRange / 2.0;
+}
+float Lidar::GetMinAngle(){
+	float angleRange = RAD_TO_DEG * (2* atan((Settings::robotDiameter)/lookDistance));
+	return lookAngle - angleRange / 2.0;
+}
+
+void Lidar::SetFOV(float angleR)
 {
 	float angleRange = angleR;
 
@@ -55,67 +52,40 @@ void Lidar::setFOV(float angleR)
 	sensor.setAngleRange(angleMin, angleMax);
 }
 
-void Lidar::lookAt(float lookA, float lookD)
+void Lidar::LookAt(float lookA, float lookD)
 {
 	lookAngle = lookA;
 	lookDistance = lookD + Settings::robotDiameter;
-	float angleRange = RAD_TO_DEG * (2* atan((Settings::robotDiameter)/lookDistance));
+	//float angleRange = RAD_TO_DEG * (2* atan((Settings::robotDiameter)/lookDistance));
+	float angleRange = 50;
 	float angleMin = lookAngle - angleRange / 2.0;
 	float angleMax = lookAngle + angleRange / 2.0;
 
 	float distMin = Settings::minDist;
 	float distMax = lookDistance;
 
+	Console::info("LookAt") << "min(" << angleMin << ") max(" << angleMax << ")" << Console::endl;
+
 	sensor.setAngleRange(angleMin, angleMax);
 	sensor.setDistanceRange(distMin, distMax);
 	// Points.clear();
 }
 
-long unsigned int lastSent = 0;
-
-void Lidar::debug()
-{
+void Lidar::Debug(){
 	//sensor.printScanTeleplot();
-	//sensor.printScanLidarView();
+	sensor.printScanLidarView();
 	sensor.printFOVLidarView();
-	sensor.printSectorsLidarView();
+	//sensor.printSectorsLidarView();
 
 	/*
-	if (millis() - lastSent > DEBUG_REFRESS)
-	{
-		lastSent = millis();
-		int array[] = {angleMin * 100.0f, angleMax * 100.0f, distMin, distMax};
-		Debugger::logArray("fov(", array, 4);
-
-		Debugger::log("count(", count(), ")");
-
-		int inc = (distMax - distMin) / 10.0f;
-		for (size_t j = 0; j < 10; j++)
-		{
-			int samplingArray[] = {(j * inc) + distMin, angleMin * 100, 254, 0};
-			Debugger::logArrayN("Data.point[", 0, "]:{", samplingArray, 4, ',', "}");
-		}
-		for (size_t j = 0; j < 10; j++)
-		{
-			int samplingArray[] = {(j * inc) + distMin, angleMax * 100, 254, 0};
-			Debugger::logArrayN("Data.point[", 0, "]:{", samplingArray, 4, ',', "}");
-		}
-
-		for (Point p : Points)
-		{
-
-			int inFOV = 0;
-			if (p.distance < Lidar::distMax && p.distance > Lidar::distMin)
-			{
-				if (p.angle < Lidar::angleMax && p.angle > Lidar::angleMin)
-				{
-					inFOV = 1;
-				}
-			}
-
-			int dataArray[] = {p.distance, p.angle * 100, p.intensity, inFOV};
-			Debugger::logArrayN("Data.point[", 0, "]:{", dataArray, 4, ',', "}");
-		}
+	Serial.print(">sectors:");
+    float angle = 0;
+    for(int i = 0; i < 36; i++){
+		angle = i*360.0/float(36);
+		float dist = getDistance(angle);
+		if(dist == 0) Serial.print(String() + i + ":" + 0 + ":" + 0 + ":" + 0 + ":" + 0 +  ";");
+        Serial.print(String() + i + ":" + 1 + ":" + dist + ":" + (dist-200.0) + ":" + dist+200 +  ";");
 	}
+	Serial.println("|np"); //don't plot
 	*/
 }

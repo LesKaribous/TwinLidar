@@ -1,23 +1,29 @@
 #pragma once
 #include <ld06.h>
 
+#include "Pin.h"
+
 class Lidar{
 public:
 
     Lidar();
 
-    void init();
-    void update();
-    bool check();
+    void Initialize();
+    void Update();
+    bool HasPoints();
 
-    std::vector<PolarVector> getDistanceField();
-    float getDistance(float angle);
+    float GetDistance(float angle);
 
-    void setFOV(float angleRange);
-    void lookAt(float angle, float dist);
+    float GetMaxAngle();
+    float GetMinAngle();
 
-    void debug();
+    void SetFOV(float angleRange);
+    void LookAt(float angle, float dist);
 
-private:
-    LD06 sensor;
+    void Debug();
+
+private : 
+	LD06 sensor; 
+	int lookAngle;
+	int lookDistance;
 };

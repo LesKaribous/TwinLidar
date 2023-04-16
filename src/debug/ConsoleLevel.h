@@ -1,6 +1,6 @@
 #pragma once
 
-enum class ConsoleLevel {
+enum ConsoleLevel {
     _TRACE,
     _INFO,
     _WARNING,

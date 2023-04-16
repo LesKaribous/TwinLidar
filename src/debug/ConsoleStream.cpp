@@ -3,6 +3,7 @@
 
 	ConsoleStream::ConsoleStream(ConsoleLevel lvl, std::string origin) {
 		_level = lvl;
+		_ignored = false;
         if(lvl < Console::GetLevel()) _ignored = true;
 
         if (!_ignored) {
@@ -16,22 +17,22 @@
 
 		switch (_level) {
 		case ConsoleLevel::_TRACE:
-			str = "[Trace]: ";
+			str = "[Trace]";
 			break;
 		case ConsoleLevel::_INFO:
-			str = "[Info]: ";
+			str = "[Info]";
 			break;
 		case ConsoleLevel::_WARNING:
-			str = "[Warning]: ";
+			str = "[Warning]";
 			break;
 		case ConsoleLevel::_ERROR:
-			str = "[Error]: ";
+			str = "[Error]";
 			break;
 		case ConsoleLevel::_SUCCESS:
-			str = "[OK]: ";
+			str = "[OK]";
 			break;
 		case ConsoleLevel::_CRITICAL:
-			str = "[Fatal]: ";
+			str = "[Fatal]";
 			break;
 		default:
 			str = "";
