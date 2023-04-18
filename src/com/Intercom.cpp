@@ -3,41 +3,22 @@
 
 #define LIDAR_SERIAL Serial3
 
-Intercom::Intercom() : _Stream(LIDAR_SERIAL) {}
+Intercom::Intercom() : _stream(LIDAR_SERIAL) {}
 
 void Intercom::Initialize(){
     LIDAR_SERIAL.begin(115200);
 }
 
-void Intercom::SendMessage(const char* message) {
-    _Stream.print(message);
-    _Stream.write('\n');
-    Console::trace("Intercom") << ">" << std::string(message) << Console::endl;
-}
-
-bool hasEnding (std::string const &fullString, std::string const &ending) {
-    if (fullString.length() >= ending.length()) {
-        return (0 == fullString.compare (fullString.length() - ending.length(), ending.length(), ending));
-    } else {
-        return false;
-    }
+void Intercom::SendMessage(String string) {
+    _stream.print(string);
+    _stream.write('\n');
+    Console::trace("Intercom") << ">" << string << Console::endl;
 }
 
 void Intercom::Update() {
-    while(_Stream.available()) {
+    if(_stream.available()) {
         _lastStream = millis();
-        char message[256];
-        int messageSize = _Stream.readBytesUntil('\n', message, sizeof(message) - 1);
-        message[messageSize] = '\0';
-
-        Console::trace("Intercom") << "<" << message << Console::endl;
-        if (strcmp(message, "ping") == 0) {
-            OnPingReceived();
-        }else if (strcmp(message, "pong") == 0) {
-            OnPongReceived();
-        }else if ( hasEnding(std::string(message), ";")) {
-            OnCommand(message);
-        }
+        ProcessIncomingData();
     }
 
     if(millis() - _lastPing > 500 && (!_connected || (_connected && millis() - _lastStream > 2000))){
@@ -49,12 +30,18 @@ void Intercom::Update() {
     }
 }
 
-void Intercom::OnPingReceived() {
-    SendMessage("pong");
+
+void Intercom::Reply(Request& req, String answer){
+    String ss = "";
+    ss += req.id;
+    ss += ":";
+    ss += answer;
+    SendMessage(ss);
 }
 
-void Intercom::OnPongReceived() {
-    if(!_connected) _connected = true;
+
+void Intercom::OnPingReceived() {
+    SendMessage("pong");
 }
 
 void Intercom::OnConnectionLost() {
@@ -67,19 +54,46 @@ void Intercom::OnConnectionSuccess(){
     _connected = true;
 }
 
-void Intercom::OnCommand(std::string command){
-    Console::trace("Intercom") << "Command received " << command << Console::endl;
-    _pendingCommand.push(command.substr(0, command.find_last_of(";")));
+void Intercom::OnRequest(const String& payload){
+    int separatorIndex = payload.indexOf(':');
+    if (separatorIndex > 0) {
+        uint32_t requestId = payload.substring(0, separatorIndex).toInt();
+        String request = payload.substring(separatorIndex + 1);
+        Console::trace("Intercom") << "Request[" << String(requestId).c_str() << "] received : " << payload.c_str() << Console::endl;
+
+        Request req = {requestId, request.c_str(), payload.c_str()};
+        _pendingRequest.push(req);
+    }
 }
 
-bool Intercom::HasPendingCommand(){
-    return _pendingCommand.size() != 0;
+void Intercom::ProcessIncomingData() {
+    while (_stream.available()) {
+        String incomingMessage = _stream.readStringUntil('\n');
+        incomingMessage.trim(); // Remove any leading/trailing whitespace or newline characters
+
+        if (incomingMessage.startsWith("ping")) {
+            OnPingReceived();
+        } else if (incomingMessage.startsWith("pong")) {
+            OnConnectionSuccess();
+        } else {
+            int separatorIndex = incomingMessage.indexOf(':');
+            if (separatorIndex > 0) {
+                OnRequest(incomingMessage);
+            }
+        }
+    }
 }
 
-std::string Intercom::UnstackCommand(){
-    if(HasPendingCommand()){
-        std::string command = _pendingCommand.top();
-        _pendingCommand.pop();
+bool Intercom::HasPendingRequest(){
+    return _pendingRequest.size() != 0;
+}
+
+Request Intercom::UnstackRequest(){
+    if(HasPendingRequest()){
+       Request command = _pendingRequest.top();
+        _pendingRequest.pop();
         return command;
-    }else return "";
+    }
+    Request bad = {0, "bad payload", "bad payload"};
+    return bad;
 }

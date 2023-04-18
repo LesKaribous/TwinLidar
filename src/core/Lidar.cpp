@@ -7,7 +7,6 @@
 #include <ld06.h>
 #include <algorithm>
 
-
 Lidar::Lidar() : sensor(Pin::Lidar::speed, Serial1){}
 
 void Lidar::Initialize(){
@@ -24,9 +23,7 @@ void Lidar::Initialize(){
 }
 
 void Lidar::Update(){
-	if(sensor.readScan(500)){
-		//Debug();
-	}
+	if(sensor.readScan(400)){}
 }
 
 float Lidar::GetDistance(float angle){

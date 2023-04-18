@@ -1,19 +1,19 @@
 #include "ConsoleStream.h"
-#include <string>
+#include "Console.h"
 
-	ConsoleStream::ConsoleStream(ConsoleLevel lvl, std::string origin) {
+	ConsoleStream::ConsoleStream(ConsoleLevel lvl, const String& origin) {
 		_level = lvl;
 		_ignored = false;
         if(lvl < Console::GetLevel()) _ignored = true;
 
         if (!_ignored) {
-			if (origin == "") Console::write(header());
-			else Console::write(header() + "(" + origin + "): ");
+			if (origin == "") Console::write(header().c_str());
+			else Console::write((header() + "(" + origin + "): ").c_str());
 		}
 	}
 
-	std::string ConsoleStream::header() {
-		std::string str;
+	String ConsoleStream::header() {
+		String str;
 
 		switch (_level) {
 		case ConsoleLevel::_TRACE:
@@ -100,7 +100,7 @@
 		return *this;
 	}
 
-	ConsoleStream& ConsoleStream::operator<<(const std::string& i) {
+	ConsoleStream& ConsoleStream::operator<<(const String& i) {
 		if (_ignored) return *this;
 		Console::print(i);
 		return *this;
@@ -112,25 +112,5 @@
 		return *this;
 	}
 
-	ConsoleStream& ConsoleStream::operator<<(const void* i) {
-		if (_ignored) return *this;
-		std::string str;
-		std::stringstream address;
-		address << i;
-		str += address.str();
-		Console::write(str.c_str());
-		return *this;
-	}
 
-	ConsoleStream& ConsoleStream::operator<<(std::ostream os){
-		if (_ignored) return *this;
-		
-		std::string str;
-		std::stringstream ss;
-		ss << os.rdbuf();
-		str += ss.str();
-
-		Console::write(str.c_str());
-		return *this;
-	}
     

@@ -1,7 +1,15 @@
 #pragma once
 #include <Arduino.h>
-#include <string>
 #include <stack>
+//Slave class
+//TODO Unify the Intercom library
+
+struct Request{
+    u_int32_t id;
+    String content;
+    String payload;
+};
+
 
 class Intercom {
 public:
@@ -9,26 +17,29 @@ public:
     
     void Initialize();
     void Update();
-    void SendMessage(const char* message);
+    void SendMessage(String string);
+
+    void Reply(Request& req, String answer);
 
     void OnPingReceived();
-    void OnPongReceived();
     void OnConnectionSuccess();
     void OnConnectionLost();
 
-    bool HasPendingCommand();
-    std::string UnstackCommand();
-    void OnCommand(std::string command);
+    bool HasPendingRequest();
+    Request UnstackRequest();
+    void OnRequest(const String& payload);
 
     inline bool IsConnected(){return _connected;}
 
 private:
-    Stream& _Stream;
+    Stream& _stream;
 
-    std::stack<std::string> _pendingCommand;
+    std::stack<Request> _pendingRequest;
 
     long _lastStream = 0;
     long _lastPing = 0;
     bool _connected = false;
+
+    void ProcessIncomingData();
 };
 

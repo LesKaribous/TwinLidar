@@ -23,10 +23,12 @@ enum class RingMode{
 
 bool lastConnectionState = true;
 
-void parseCommand(String command){
-    if(strcmp(command.c_str(), "displayIntercom()") == 0){
+void parseRequest(Request req){
+    String command = req.content.c_str();
+
+    if(command.startsWith("displayIntercom")){
         currentMode = RingMode::INTERCOM;
-    }else if(strcmp(command.c_str(), "displayLidar()") == 0){
+    }else if(command.startsWith("displayLidar")){
         currentMode = RingMode::LIDAR;
     }else if(command.startsWith("lookAt")){
 
@@ -50,9 +52,11 @@ void parseCommand(String command){
             Console::info() << "Angle :" << angle << Console::endl;
 
             if(lidar.GetDistance(angle) < 300) intercom.SendMessage("STOP");
+    }else if(command.startsWith("dummyRequest")){
+        String answer = String(req.id);
+        intercom.Reply(req, "dummyRequest received !");
+        
     }
-
-
 }
 
 void setup(){
@@ -71,8 +75,8 @@ void loop(){
     lidar.Update();
     intercom.Update();
     
-    while(intercom.HasPendingCommand()){
-        parseCommand(String(intercom.UnstackCommand().c_str()));
+    while(intercom.HasPendingRequest()){
+        parseRequest(intercom.UnstackRequest());
     }
 
     if(currentMode == RingMode::INTERCOM){

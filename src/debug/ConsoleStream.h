@@ -1,13 +1,12 @@
 #pragma once
 #include "math/Geometry.h"
-#include "Console.h"
 #include "ConsoleLevel.h"
 
-class Console;
+#include <Arduino.h>
 
 class ConsoleStream {
 public:
-	ConsoleStream(ConsoleLevel lvl, std::string origin = "");
+	ConsoleStream(ConsoleLevel lvl, const String& origin = "");
 	
 	ConsoleStream& operator<<(short);
 	ConsoleStream& operator<<(int);
@@ -18,13 +17,11 @@ public:
 	ConsoleStream& operator<<(double);
 
 	ConsoleStream& operator<<(char);
-	ConsoleStream& operator<<(const std::string&);
+	ConsoleStream& operator<<(const String&);
 	ConsoleStream& operator<<(const char*);
-	ConsoleStream& operator<<(const void*);
-	ConsoleStream& operator<<(std::ostream os);
 
 private:
-	std::string header();
+	String header();
 	
 	ConsoleLevel _level;
 	bool _ignored;
