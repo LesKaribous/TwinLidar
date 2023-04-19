@@ -22,7 +22,7 @@ public:
 
     void Debug();
 
-private : 
+public : 
 	LD06 sensor; 
 	int lookAngle;
 	int lookDistance;
