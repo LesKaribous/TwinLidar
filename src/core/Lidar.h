@@ -10,20 +10,34 @@ public:
 
     void Initialize();
     void Update();
+
     bool HasPoints();
+    int GetDistance(int angle);
 
-    float GetDistance(float angle);
+    void SetHeading(int heading);
 
-    float GetMaxAngle();
-    float GetMinAngle();
+    int GetMaxAngle();
+    int GetMinAngle();
+    void SetMaxAngle(int);
+    void SetMinAngle(int);
 
-    void SetFOV(float angleRange);
-    void LookAt(float angle, float dist);
+    int GetMaxDistance();
+    int GetMinDistance();
+    void SetMaxDistance(int);
+    void SetMinDistance(int);
+
+    void SetFOV(int angleRange);
+    void LookAt(int angle, int dist);
 
     void Debug();
 
 public : 
 	LD06 sensor; 
-	int lookAngle;
-	int lookDistance;
+	int _lookAngle;
+	int _lookDistance;
+    int _minAngle;
+    int _maxAngle;
+    int _minDistance;
+    int _maxDistance;
+    int _angleRange;
 };

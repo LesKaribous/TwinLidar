@@ -21,8 +21,6 @@ enum class RingMode{
     INTERCOM
 } currentMode;
 
-bool lastConnectionState = true;
-
 void parseRequest(Request req){
     String command = req.content.c_str();
 
@@ -47,13 +45,15 @@ void parseRequest(Request req){
             Console::info() << "Command parsed :" << command.c_str() << Console::endl;
             String argString = command.substring(command.indexOf("(") +1, command.indexOf(")"));
 
-            float angle = float(argString.toInt());
+            int angle = argString.toInt();
 
             Console::info() << "Angle :" << angle << Console::endl;
-            lidar.LookAt(0,500);
-            lidar.lookAngle = angle;
+
             lidar.SetFOV(50);
-            if(lidar.GetDistance(angle) < 300 && lidar.GetDistance(angle) > 150) intercom.Reply(req, "obstacle");
+            lidar.SetHeading(angle);
+            lidar.Update();
+
+            if(lidar.GetDistance(angle) < 500 && lidar.GetDistance(angle) > 80) intercom.Reply(req, "obstacle");
             else intercom.Reply(req, "RAS");
 
     }else if(command.startsWith("dummyRequest")){
@@ -84,9 +84,6 @@ void loop(){
     }
 
     if(currentMode == RingMode::INTERCOM){
-        if(lastConnectionState != intercom.IsConnected()){
-            lastConnectionState = intercom.IsConnected();
-        }
         pixel.DrawIntercom(intercom.IsConnected());
     }else if(currentMode == RingMode::LIDAR){
         pixel.DrawLidar(lidar);

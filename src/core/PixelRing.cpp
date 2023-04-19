@@ -12,8 +12,8 @@ void PixelRing::Initialize(){
 }
 
 void PixelRing::Update(){
-    if ( pixelsChrono.hasPassed(REFRESH_DELAY) ) {
-            pixelsChrono.restart();
+    if ( millis() - lastDraw > REFRESH_DELAY) {
+            lastDraw = millis();
             pixels.show();
     }
 }
@@ -27,16 +27,19 @@ void PixelRing::SetFullColor(long unsigned int color){
 
 
 void PixelRing::DrawIntercom(bool state){
-    if(state) SetFullColor(pixels.Color(20, 255, 20));
-    else SetFullColor(pixels.Color(255, 20, 20));
+    if (millis() - lastblink > (state ? BRIGHTNESS_DELAY : BRIGHTNESS_DELAY /2)) {
+        
+        lastblink = millis();
 
-    pixels.clear(); 
+        if(state) SetFullColor(pixels.Color(20, 255, 20));
+        else SetFullColor(pixels.Color(255, 20, 20));
 
-    if ( pixelsChrono.hasPassed(REFRESH_DELAY) ) {
-        if(light > 50 || light < 0) blinkState = !blinkState;
-        if(blinkState) light += lightInc;
-        else light -= lightInc;
 
+        if(light > BRIGHTNESS || light <= MINBRIGHTNESS) blinkState = !blinkState;
+        if(blinkState) light += BRIGHTNESS_STEP;
+        else light -= BRIGHTNESS_STEP;
+
+        pixels.clear(); 
         // Draw pixels :
         pixels.setBrightness(light);
         for (size_t i = 0; i < NUM_PIXELS; i++){

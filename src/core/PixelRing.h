@@ -3,11 +3,16 @@
 
 #include <Arduino.h>
 #include <Adafruit_NeoPixel.h>
-#include <Chrono.h>
 
 const int NUM_PIXELS = 35;
-const float REFRESH_DELAY = 120.0f;
-const float BLINK_DELAY = 800.0f;
+
+const float BLINK_DELAY = 1000.0f;
+const float BRIGHTNESS = 40;
+const float MINBRIGHTNESS = 5;
+const float BRIGHTNESS_STEP = 1;
+const float BRIGHTNESS_DELAY = BLINK_DELAY/(BRIGHTNESS/BRIGHTNESS_STEP);
+
+const float REFRESH_DELAY = 100.0f;
 
 class PixelRing{
 public:
@@ -20,7 +25,6 @@ public:
 
 private:
     Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUM_PIXELS, Pin::PIXELS, NEO_GRB + NEO_KHZ800);
-    Chrono pixelsChrono;
 
     int ledColor[NUM_PIXELS];
 
@@ -28,7 +32,9 @@ private:
     const int minHeat = 200;
 
     bool blinkState = false;
-    float light = 0;
-    const float lightInc = ((BLINK_DELAY/REFRESH_DELAY)/REFRESH_DELAY)*255.0f;
+    unsigned long  lastblink = 0;
+    float light = MINBRIGHTNESS;
+
+    unsigned long lastDraw = 0;
 
 }; // namespace LED

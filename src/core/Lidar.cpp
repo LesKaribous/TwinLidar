@@ -14,58 +14,95 @@ void Lidar::Initialize(){
 	
 	sensor.enableFiltering();
 	sensor.enableSectoring();
-	sensor.setSectorsResolution(10);
+	sensor.setSectorsResolution(20);
 	//lookAt(180, 770);
-	LookAt(0, 400);
+	SetHeading(0);
 	SetFOV(90);
 	//sensor.disableCRC();
 	delay(200);
 }
 
 void Lidar::Update(){
-	if(sensor.readScan(400)){}
+	if(sensor.readScan(500)){}
 }
 
-float Lidar::GetDistance(float angle){
+bool Lidar::HasPoints(){
+	//return sensor.hasPoint();
+	return true;
+}
+
+int Lidar::GetDistance(int angle){
 	return sensor.getDistanceAtAngle(angle);
 }
 
-float Lidar::GetMaxAngle(){
-	float angleRange = RAD_TO_DEG * (2* atan((Settings::robotDiameter)/lookDistance));
-	return lookAngle + angleRange / 2.0;
-}
-float Lidar::GetMinAngle(){
-	float angleRange = RAD_TO_DEG * (2* atan((Settings::robotDiameter)/lookDistance));
-	return lookAngle - angleRange / 2.0;
+int Lidar::GetMaxAngle(){
+	return _minAngle;
 }
 
-void Lidar::SetFOV(float angleR)
+int Lidar::GetMinAngle(){
+	return _minAngle;
+}
+
+void Lidar::SetMaxAngle(int angle){
+	_maxAngle = angle;
+	sensor.setMaxAngle(_maxAngle);
+}
+
+void Lidar::SetMinAngle(int angle){
+	_minAngle = angle;
+	sensor.setMinAngle(_minAngle);
+}
+
+int Lidar::GetMaxDistance(){
+	return _minAngle;
+}
+
+int Lidar::GetMinDistance(){
+	return _minAngle;
+}
+
+void Lidar::SetMaxDistance(int dist){
+	_maxDistance = dist;
+	sensor.setMaxDistance(_maxDistance);
+}
+
+void Lidar::SetMinDistance(int dist){
+	_minDistance = dist;
+	sensor.setMaxDistance(_minDistance);
+}
+
+void Lidar::SetFOV(int angleR){
+	_angleRange = angleR;
+
+	_minAngle = _lookAngle - _angleRange / 2.0;
+	_maxAngle = _lookAngle + _angleRange / 2.0;
+
+	sensor.setAngleRange(_minAngle, _maxAngle);
+}
+
+void Lidar::SetHeading(int heading){
+	_lookAngle = heading;
+	_minAngle = _lookAngle - _angleRange / 2.0;
+	_maxAngle = _lookAngle + _angleRange / 2.0;
+
+	sensor.setAngleRange(_minAngle, _maxAngle);
+}
+
+
+void Lidar::LookAt(int lookA, int lookD)
 {
-	float angleRange = angleR;
+	_lookAngle = lookA;
+	_angleRange = RAD_TO_DEG * (2* atan((Settings::robotDiameter)/_lookDistance));
+	_minAngle = _lookAngle - _angleRange / 2.0;
+	_maxAngle = _lookAngle + _angleRange / 2.0;
 
-	float angleMin = lookAngle - angleRange / 2.0;
-	float angleMax = lookAngle + angleRange / 2.0;
+	_minDistance = max(Settings::minDist, _lookDistance - Settings::robotDiameter);
+	_maxDistance = _lookDistance;
 
-	sensor.setAngleRange(angleMin, angleMax);
-}
+	Console::info("LookAt") << "min(" << _minAngle << ") max(" << _maxAngle << ")" << Console::endl;
 
-void Lidar::LookAt(float lookA, float lookD)
-{
-	lookAngle = lookA;
-	lookDistance = lookD + Settings::robotDiameter;
-	//float angleRange = RAD_TO_DEG * (2* atan((Settings::robotDiameter)/lookDistance));
-	float angleRange = 50;
-	float angleMin = lookAngle - angleRange / 2.0;
-	float angleMax = lookAngle + angleRange / 2.0;
-
-	float distMin = Settings::minDist;
-	float distMax = lookDistance;
-
-	Console::info("LookAt") << "min(" << angleMin << ") max(" << angleMax << ")" << Console::endl;
-
-	sensor.setAngleRange(angleMin, angleMax);
-	sensor.setDistanceRange(distMin, distMax);
-	// Points.clear();
+	sensor.setAngleRange(_minAngle, _maxAngle);
+	sensor.setDistanceRange(_minDistance, _maxDistance);
 }
 
 void Lidar::Debug(){
