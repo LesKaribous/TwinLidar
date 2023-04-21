@@ -53,7 +53,7 @@ void parseRequest(Request req){
             lidar.SetHeading(angle);
             lidar.Update();
 
-            if(lidar.GetDistance(angle) < 500 && lidar.GetDistance(angle) > 80) intercom.Reply(req, "obstacle");
+            if(lidar.GetDistance(angle) < 800 && lidar.GetDistance(angle) > 80) intercom.Reply(req, "obstacle");
             else intercom.Reply(req, "RAS");
 
     }else if(command.startsWith("dummyRequest")){
