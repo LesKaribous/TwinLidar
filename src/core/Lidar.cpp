@@ -23,7 +23,7 @@ void Lidar::Initialize(){
 }
 
 void Lidar::Update(){
-	if(sensor.readScan(500)){}
+	if(sensor.readScan(600)){}
 }
 
 bool Lidar::HasPoints(){
