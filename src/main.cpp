@@ -72,6 +72,8 @@ void setup(){
     pixel.Initialize();
     intercom.Initialize();
     lidar.Initialize();
+    lidar.SetHeading(180);
+    lidar.SetFOV(5);
 }
 
 

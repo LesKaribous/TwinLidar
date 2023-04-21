@@ -60,13 +60,6 @@ void PixelRing::DrawLidar(Lidar& lidar){
         int ledGreen  = map(dist,100,1000,0,255);
         pixels.setPixelColor(ledCenter, pixels.Color(ledRed,   ledGreen,   10));
     }
-
-    int ledMAX = lidar.GetMaxAngle() / 10;
-    int ledMIN = lidar.GetMinAngle() / 10;
-
-    pixels.setPixelColor(ledMAX, pixels.Color(0,   0,   255));
-    pixels.setPixelColor(ledMIN, pixels.Color(0,   0,   255));
-
 }
 
 
