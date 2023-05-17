@@ -17,7 +17,8 @@ void Lidar::Initialize(){
 	sensor.setSectorsResolution(20);
 	//lookAt(180, 770);
 	SetHeading(0);
-	SetFOV(90);
+	SetFOV(360);
+	sensor.setIntensityThreshold(200);
 	//sensor.disableCRC();
 	delay(200);
 }

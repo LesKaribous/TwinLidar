@@ -49,11 +49,12 @@ void parseRequest(Request req){
 
             Console::info() << "Angle :" << angle << Console::endl;
 
-            lidar.SetFOV(50);
+            lidar.SetFOV(140);
             lidar.SetHeading(angle);
             lidar.Update();
+            
 
-            if(lidar.GetDistance(angle) < 800 && lidar.GetDistance(angle) > 80) intercom.Reply(req, "obstacle");
+            if(lidar.GetDistance(angle) < 800 && lidar.GetDistance(angle) > 100) intercom.Reply(req, "obstacle");
             else intercom.Reply(req, "RAS");
 
     }else if(command.startsWith("dummyRequest")){
@@ -73,7 +74,7 @@ void setup(){
     intercom.Initialize();
     lidar.Initialize();
     lidar.SetHeading(180);
-    lidar.SetFOV(5);
+    lidar.SetFOV(360);
 }
 
 
