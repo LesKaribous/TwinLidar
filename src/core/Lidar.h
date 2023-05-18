@@ -3,9 +3,9 @@
 
 #include "Pin.h"
 
-class Lidar{
+class Lidar
+{
 public:
-
     Lidar();
 
     void Initialize();
@@ -26,15 +26,17 @@ public:
     void SetMaxDistance(int);
     void SetMinDistance(int);
 
+    bool CheckObstacle(int, int);
+
     void SetFOV(int angleRange);
     void LookAt(int angle, int dist);
 
     void Debug();
 
-public : 
-	LD06 sensor; 
-	int _lookAngle;
-	int _lookDistance;
+public:
+    LD06 sensor;
+    int _lookAngle;
+    int _lookDistance;
     int _minAngle;
     int _maxAngle;
     int _minDistance;
