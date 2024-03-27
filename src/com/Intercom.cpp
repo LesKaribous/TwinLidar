@@ -12,7 +12,7 @@ void Intercom::Initialize(){
 void Intercom::SendMessage(String string) {
     _stream.print(string);
     _stream.write('\n');
-    Console::trace("Intercom") << ">" << string << Console::endl;
+    //Console::trace("Intercom") << ">" << string << Console::endl;
 }
 
 void Intercom::Update() {
@@ -45,12 +45,12 @@ void Intercom::OnPingReceived() {
 }
 
 void Intercom::OnConnectionLost() {
-    Console::trace("Intercom") << "Connection lost." << Console::endl;
+    //Console::trace("Intercom") << "Connection lost." << Console::endl;
     _connected = false;
 }
 
 void Intercom::OnConnectionSuccess(){
-    Console::trace("Intercom") << "Connection successful." << Console::endl;
+    //Console::trace("Intercom") << "Connection successful." << Console::endl;
     _connected = true;
 }
 
@@ -59,11 +59,13 @@ void Intercom::OnRequest(const String& payload){
     if (separatorIndex > 0) {
         uint32_t requestId = payload.substring(0, separatorIndex).toInt();
         String request = payload.substring(separatorIndex + 1);
-        Console::trace("Intercom") << "Request[" << String(requestId).c_str() << "] received : " << payload.c_str() << Console::endl;
+        //Console::trace("Intercom") << "Request[" << String(requestId).c_str() << "] received : " << payload.c_str() << Console::endl;
+        //Console::println(_pendingRequest.size());
 
         Request req = {requestId, request.c_str(), payload.c_str()};
-        _pendingRequest.push(req);
+        _pendingRequest.push_back(req);
     }
+    if(_pendingRequest.size() > 10) _pendingRequest.pop_front();
 }
 
 void Intercom::ProcessIncomingData() {
@@ -90,8 +92,8 @@ bool Intercom::HasPendingRequest(){
 
 Request Intercom::UnstackRequest(){
     if(HasPendingRequest()){
-       Request command = _pendingRequest.top();
-        _pendingRequest.pop();
+       Request command = _pendingRequest.back();
+        _pendingRequest.pop_back();
         return command;
     }
     Request bad = {0, "bad payload", "bad payload"};

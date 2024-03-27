@@ -34,6 +34,10 @@ void parseRequest(Request req)
     {
         currentMode = RingMode::LIDAR;
     }
+    else if (command.startsWith("perfTest"))
+    {
+        intercom.Reply(req, "perfReply");
+    }
     else if (command.startsWith("lookAt"))
     {
 
@@ -77,7 +81,7 @@ void parseRequest(Request req)
 void setup()
 {
     Console::Initialize();
-    Console::SetLevel(ConsoleLevel::_TRACE);
+    Console::SetLevel(ConsoleLevel::_INFO);
 
     currentMode = RingMode::INTERCOM;
 
@@ -92,11 +96,12 @@ void loop()
 {
     lidar.Update();
     intercom.Update();
-
-    while (intercom.HasPendingRequest())
+    
+    if (intercom.HasPendingRequest())
     {
         parseRequest(intercom.UnstackRequest());
     }
+    //return;
 
     if (currentMode == RingMode::INTERCOM)
     {

@@ -1,6 +1,6 @@
 #pragma once
 #include <Arduino.h>
-#include <stack>
+#include <deque>
 //Slave class
 //TODO Unify the Intercom library
 
@@ -34,7 +34,7 @@ public:
 private:
     Stream& _stream;
 
-    std::stack<Request> _pendingRequest;
+    std::deque<Request> _pendingRequest;
 
     long _lastStream = 0;
     long _lastPing = 0;
