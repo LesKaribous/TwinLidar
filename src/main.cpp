@@ -22,6 +22,35 @@ enum class RingMode
     INTERCOM
 } currentMode;
 
+
+std::vector<String> extractArguments(const String& args) {
+    std::vector<String> arguments;
+    //int start = 0;
+    int end = args.indexOf(',');
+    if(end != -1){
+        String argBuf = "";
+        uint index = 0;
+        bool ignoreVectorComma = false;
+        while (index != args.length()) {
+            if (args.charAt(index) == '['){
+                ignoreVectorComma = true;
+            }
+            if (args.charAt(index) == ']'){
+                ignoreVectorComma = false;
+            }
+            if (args.charAt(index) == ',' && !ignoreVectorComma) {
+                arguments.push_back(argBuf);
+                argBuf = "";
+            }else argBuf += args.charAt(index);
+            index++;
+        }
+        if(argBuf.length() > 0) arguments.push_back(argBuf);
+    }
+    return arguments;
+}
+
+
+
 void parseRequest(Request req)
 {
     String command = req.content.c_str();
@@ -34,10 +63,23 @@ void parseRequest(Request req)
     {
         currentMode = RingMode::LIDAR;
     }
-    else if (command.startsWith("perfTest"))
+    else if (command.startsWith("setRobotPosition"))
     {
-        intercom.Reply(req, "perfReply");
+        String argString = command.substring(command.indexOf("(") + 1, command.indexOf(")"));
+        std::vector<String> args = extractArguments(argString);
+        if(args.size() == 3){
+            float x = args[0].toFloat();
+            float y = args[1].toFloat();
+            float z = args[3].toFloat();
+
+            if(x > 10 && x < 3000 && y > 10 && y < 2000){
+                lidar.SetPosition(x, y, z);
+            }
+        }
     }
+
+
+    /*
     else if (command.startsWith("lookAt"))
     {
 
@@ -75,7 +117,7 @@ void parseRequest(Request req)
     {
         String answer = String(req.id);
         intercom.Reply(req, "dummyRequest received !");
-    }
+    }*/
 }
 
 void setup()

@@ -14,6 +14,7 @@ public:
     bool HasPoints();
     int GetDistance(int angle);
 
+    void SetPosition(float x, float y, float z);
     void SetHeading(int heading);
 
     int GetMaxAngle();
@@ -35,6 +36,9 @@ public:
 
 public:
     LD06 sensor;
+
+    float x, y, z;
+
     int _lookAngle;
     int _lookDistance;
     int _minAngle;
