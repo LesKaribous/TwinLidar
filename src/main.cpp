@@ -73,10 +73,14 @@ void onIntercomRequest(Request& req){
 	if (command.startsWith("displayIntercom"))
     {
         pixel.setMode(Pixel::INTERCOM);
+        Console::println("displayIntercom");
+        req.reply("OK");
     }
     else if (command.startsWith("displayLidar"))
     {
         pixel.setMode(Pixel::LIDAR);
+        Console::println("displayLidar");
+        req.reply("OK");
     }
     else if (command.startsWith("setRobotPosition"))
     {

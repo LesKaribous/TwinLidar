@@ -121,6 +121,10 @@ void Lidar::setPosition(float x, float y, float theta){
     m_theta = theta;
 }
 
+Vec3 Lidar::getPosition(){
+    return Vec3(m_x,m_ym_theta);
+}
+
 void Lidar::setHeading(int heading)
 {
 	_lookAngle = heading;

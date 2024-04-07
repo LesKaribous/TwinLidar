@@ -20,7 +20,7 @@ void Intercom::onUpdate() {
     }
     _processPendingRequests();
 
-    if(millis() - _lastPing > 500 && (!_connected || (_connected && millis() - _lastStream > 2000))){
+    if(millis() - _lastPing > 500 && (!_connected || (_connected && millis() - _lastStream > 1000))){
         sendMessage("ping");
         _lastPing = millis();
     }
