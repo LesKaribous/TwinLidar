@@ -12,8 +12,6 @@ static Lidar& lidar = Lidar::instance();
 static Pixel& pixel = Pixel::instance();
 static Intercom& intercom = Intercom::instance();
 
-static int local_counter = 0;
-
 void onBoot(); //Execute once at boot
 void onUpdate(); //Execute before robotProgram (idle loop)
 
@@ -66,30 +64,10 @@ void onIntercomDisconnected(){
 }
 
 void onIntercomRequestReply(Request& req){
-    static long avg_reply_time = 0;
-    static long req_count = 0;
-    static long req_time_sum = 0;
-    req_time_sum += req.getResponseTime();
-    req_count++;
-    avg_reply_time = req_time_sum/req_count;
-    //Console::println(req.getResponse());
-    
-    //Console::println("AVG reply time : " + String(avg_reply_time));
-    //Console::println("reply time : " + String(req.getResponseTime()));
+
 }
 
 void onIntercomRequest(Request& req){
-
-    //Console::println(req.getContent());
-    if(req.getContent() == "+")
-        local_counter++;
-    else{
-        req.reply(req.getContent());
-        req.reply("=" + String(local_counter));
-    }
-    
-    return;
-
     String command = req.getContent();
 
 	if (command.startsWith("displayIntercom"))
