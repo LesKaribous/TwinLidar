@@ -17,12 +17,12 @@ void onUpdate(); //Execute before robotProgram (idle loop)
 
 void onIntercomConnected();
 void onIntercomDisconnected();
-void onIntercomRequest(const Request&);
-void onIntercomRequestReply(const Request&);
+void onIntercomRequest(Request&);
+void onIntercomRequestReply(Request&);
 
 void setup(){
 	Console::init();
-    Console::setLevel(ConsoleLevel::VERBOSE);
+    Console::setLevel(ConsoleLevel::INFO);
 
 	os.setRountine(OS::BOOT, onBoot);				//Execute once						(setup)
 	os.setRountine(OS::RUNNING, onUpdate);			//Execute during match				(loop)
@@ -33,7 +33,7 @@ void loop(){
 }
 
 void onBoot(){
-	//os.attachService(&lidar);
+	os.attachService(&lidar);
 	os.attachService(&pixel);
 	os.attachService(&intercom);
 	intercom.setConnectLostCallback(onIntercomDisconnected);
@@ -63,21 +63,23 @@ void onIntercomDisconnected(){
 //huh!
 }
 
-void onIntercomRequestReply(const Request& req){
+void onIntercomRequestReply(Request& req){
     static long avg_reply_time = 0;
     static long req_count = 0;
     static long req_time_sum = 0;
     req_time_sum += req.getResponseTime();
     req_count++;
     avg_reply_time = req_time_sum/req_count;
-    Console::println(req.getResponse());
+    //Console::println(req.getResponse());
+    
     //Console::println("AVG reply time : " + String(avg_reply_time));
     //Console::println("reply time : " + String(req.getResponseTime()));
 }
 
-void onIntercomRequest(const Request& req){
+void onIntercomRequest(Request& req){
 
-    Console::println(req.getContent());
+    //Console::println(req.getContent());
+    req.reply("ok");
     return;
 
     String command = req.getContent();

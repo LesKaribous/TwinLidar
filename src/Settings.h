@@ -2,7 +2,7 @@
 
 #define LIDAR_SERIAL Serial1
 #define INTERCOM_SERIAL Serial3
-#define INTERCOM_BAUDRATE 115200
+#define INTERCOM_BAUDRATE 57600
 
 namespace Settings{
     //Lidar settings
