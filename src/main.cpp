@@ -1,159 +1,81 @@
-//
-//   _______       _       _      _     _
-//  |__   __|     (_)     | |    (_)   | |
-//     | |_      ___ _ __ | |     _  __| | __ _ _ __
-//     | \ \ /\ / / | '_ \| |    | |/ _` |/ _` | '__|
-//     | |\ V  V /| | | | | |____| | (_| | (_| | |
-//     |_| \_/\_/ |_|_| |_|______|_|\__,_|\__,_|_|
-//
-//     Author  : Nadarbreicq, JulesTopart
-//     Version : 0.1.0
-//     Last update : 10 / 04 / 2023
+#include "os/console.h"
+#include "os/os.h"
+#include "utils/commandHandler.h"
 
-#include "TwinLidar.h"
+#include "services/lidar/lidar.h"
+#include "services/pixel/pixel.h"
+#include "services/intercom/intercom.h"
 
-Intercom intercom;
-PixelRing pixel;
-Lidar lidar;
+static OS& os = OS::instance();
 
-enum class RingMode
-{
-    LIDAR,
-    INTERCOM
-} currentMode;
+static Lidar& lidar = Lidar::instance();
+static Pixel& pixel = Pixel::instance();
+static Intercom& intercom = Intercom::instance();
 
+void onBoot(); //Execute once at boot
+void onUpdate(); //Execute before robotProgram (idle loop)
 
-std::vector<String> extractArguments(const String& args) {
-    std::vector<String> arguments;
-    //int start = 0;
-    int end = args.indexOf(',');
-    if(end != -1){
-        String argBuf = "";
-        uint index = 0;
-        bool ignoreVectorComma = false;
-        while (index != args.length()) {
-            if (args.charAt(index) == '['){
-                ignoreVectorComma = true;
-            }
-            if (args.charAt(index) == ']'){
-                ignoreVectorComma = false;
-            }
-            if (args.charAt(index) == ',' && !ignoreVectorComma) {
-                arguments.push_back(argBuf);
-                argBuf = "";
-            }else argBuf += args.charAt(index);
-            index++;
-        }
-        if(argBuf.length() > 0) arguments.push_back(argBuf);
-    }
-    return arguments;
+void onIntercomConnected();
+void onIntercomDisconnected();
+void onIntercomMessage(const String&);
+
+void setup(){
+	Console::init();
+
+	os.setRountine(OS::BOOT, onBoot);				//Execute once						(setup)
+	os.setRountine(OS::RUNNING, onUpdate);			//Execute during match				(loop)
 }
 
+void loop(){
+	os.run();	//update the services and run the current routine
+}
 
+void onBoot(){
+	os.attachService(&lidar);
+	os.attachService(&pixel);
+	os.attachService(&intercom);
+	intercom.setConnectLostCallback(onIntercomDisconnected);
+    intercom.setConnectionSuccessCallback(onIntercomConnected);
 
-void parseRequest(Request req)
-{
-    String command = req.content.c_str();
+	lidar.setHeading(180);
+    lidar.setFOV(360);
 
-    if (command.startsWith("displayIntercom"))
+	Console::info("OS") << "Boot finished" << Console::endl;
+}
+
+void onUpdate(){
+}
+
+void onIntercomConnected(){
+//yay!
+}
+
+void onIntercomDisconnected(){
+//huh!
+}
+
+void onIntercomMessage(const String& command){
+	Console::println(command);
+	if (command.startsWith("displayIntercom"))
     {
-        currentMode = RingMode::INTERCOM;
+        pixel.setMode(Pixel::INTERCOM);
     }
     else if (command.startsWith("displayLidar"))
     {
-        currentMode = RingMode::LIDAR;
+        pixel.setMode(Pixel::LIDAR);
     }
     else if (command.startsWith("setRobotPosition"))
     {
         String argString = command.substring(command.indexOf("(") + 1, command.indexOf(")"));
-        std::vector<String> args = extractArguments(argString);
+        std::vector<String> args = CommandHandler::extractArguments(argString);
         if(args.size() == 3){
             float x = args[0].toFloat();
             float y = args[1].toFloat();
             float z = args[3].toFloat();
 
             if(x > 10 && x < 3000 && y > 10 && y < 2000){
-                lidar.SetPosition(x, y, z);
+                lidar.setPosition(x, y, z);
             }
         }
     }
-
-
-    /*
-    else if (command.startsWith("lookAt"))
-    {
-
-        String argString = command.substring(command.indexOf("(") + 1, command.indexOf(")"));
-        String angleStr = argString.substring(0, argString.indexOf(','));
-        String distStr = argString.substring(argString.indexOf(',') + 1, argString.length());
-
-        float angle = float(angleStr.toInt());
-        float dist = float(distStr.toInt());
-
-        Console::info() << "Angle :" << angle << Console::endl;
-        Console::info() << "Dist :" << dist << Console::endl;
-
-        lidar.LookAt(angle, dist);
-    }
-    else if (command.startsWith("checkLidar"))
-    {
-        Console::info() << "Command parsed :" << command.c_str() << Console::endl;
-        String argString = command.substring(command.indexOf("(") + 1, command.indexOf(")"));
-
-        int angle = argString.toInt();
-
-        Console::info() << "Angle :" << angle << Console::endl;
-
-        lidar.SetFOV(140);
-        lidar.SetHeading(angle);
-        lidar.Update();
-
-        if (lidar.CheckObstacle(100, 800))
-            intercom.Reply(req, "obstacle");
-        else
-            intercom.Reply(req, "RAS");
-    }
-    else if (command.startsWith("dummyRequest"))
-    {
-        String answer = String(req.id);
-        intercom.Reply(req, "dummyRequest received !");
-    }*/
-}
-
-void setup()
-{
-    Console::Initialize();
-    Console::SetLevel(ConsoleLevel::_INFO);
-
-    currentMode = RingMode::INTERCOM;
-
-    pixel.Initialize();
-    intercom.Initialize();
-    lidar.Initialize();
-    lidar.SetHeading(180);
-    lidar.SetFOV(360);
-}
-
-void loop()
-{
-    lidar.Update();
-    intercom.Update();
-    
-    if (intercom.HasPendingRequest())
-    {
-        parseRequest(intercom.UnstackRequest());
-    }
-    //return;
-
-    if (currentMode == RingMode::INTERCOM)
-    {
-        pixel.DrawIntercom(intercom.IsConnected());
-    }
-    else if (currentMode == RingMode::LIDAR)
-    {
-        pixel.DrawLidar(lidar);
-    }
-
-    pixel.Update();
-    // delayMicroseconds(10);
 }

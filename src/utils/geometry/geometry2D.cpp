@@ -1,8 +1,5 @@
-#include "Geometry2D.h"
-#include "Geometry3D.h"
-#include <math.h>
-#include <Arduino.h>
-#include "Settings.h"
+#include "geometry2D.h"
+#include "geometry3D.h"
 
 //---------- Polar Vec --------
 
@@ -37,27 +34,74 @@ Vec2::Vec2(float v){
     a = b = v;
 }*/
 
-Vec2::Vec2(float x, float y){
-    a = x; b = y;
+Vec2::Vec2(float u){
+    a = u; b = u;
 }
 
-Vec2 Vec2::copy(){
-    return *this;
+
+Vec2::Vec2(float _x, float _y){
+    a = _x; b = _y;
 }
 
-Vec2& Vec2::add(Vec2& v){
+
+Vec2 Vec2::fromString(const String& str){
+    bool error = false;
+    String v = str;
+    v = v.trim(); 
+    
+    String x_str = "";
+    String y_str = "";
+
+    if(v.startsWith("[") && v.endsWith("]")){
+        int i = 1; //skip the [
+        
+        while(v.charAt(i) != ','){
+            if(!isdigit(v.charAt(i)) && v.charAt(i) != '.' && v.charAt(i) != '-') error = true;
+            x_str += v.charAt(i++);
+        }
+
+        i++; //skip the ,
+        
+        while(v.charAt(i) != ']'){
+            if(!isdigit(v.charAt(i)) && v.charAt(i) != '.' && v.charAt(i) != '-') error = true;
+            y_str += v.charAt(i++);
+        }
+
+
+    }else error = true;
+    
+    if(error){
+        //Console::error("Vec2") << "Syntax error in Vec2 constructor. Given :" << str << Console::endl;
+    }else{
+        float x = x_str.toFloat();
+        float y = y_str.toFloat();
+        return Vec2(x, y);
+    }
+    return Vec2(0,0);
+    
+}
+
+
+Vec2 Vec2::copy() const{
+    Vec2 r;
+    r.a = a;
+    r.b = b;
+    return r;
+}
+
+Vec2& Vec2::add(const Vec2& v){
     a += v.a;
     b += v.b;
     return *this;
 }
 
-Vec2& Vec2::sub(Vec2& v){
+Vec2& Vec2::sub(const Vec2& v){
     a -= v.a; 
     b -= v.b;
     return *this;
 }
 
-Vec2& Vec2::dist(Vec2& v){
+Vec2& Vec2::dist(const Vec2& v){
     return this->sub(v);
 }
 
@@ -122,8 +166,8 @@ Vec2& Vec2::mult(Matrix2x2 m){
 
 Vec2& Vec2::rotate(float x){
 
-    while(x > PI) x -= 2.0f*PI;
-    while(x < -PI) x += 2.0f*PI;
+    while(x > M_PI) x -= 2.0f*M_PI;
+    while(x < -M_PI) x += 2.0f*M_PI;
 
     this->mult( { cosf(x), -sinf(x), 
                   sinf(x), cosf(x)} );
@@ -131,31 +175,34 @@ Vec2& Vec2::rotate(float x){
 }
 
 //Static Methods
-Vec2 Vec2::add(Vec2& a, Vec2& b){
-    a.a += b.a; 
-    a.b += b.b;
-    return a;
+Vec2 Vec2::add(const Vec2& a, const Vec2& b){
+    Vec2 r = a.copy();
+    r.a += b.a; 
+    r.b += b.b;
+    return r;
 }
 
-Vec2 Vec2::sub(Vec2& a, Vec2& b){
-    a.a -= b.a; a.b -= b.b;
-    return a;
+Vec2 Vec2::sub(const Vec2& a, const Vec2& b){
+    Vec2 r = a.copy();
+    r.a -= b.a; 
+    r.b -= b.b;
+    return r;
 }
 
-float Vec2::dot(Vec2& a, Vec2& b){
+float Vec2::dot(const Vec2& a, const Vec2& b){
     return a.a * b.a + a.b * b.b;
 }
 
-float Vec2::det(Vec2& a, Vec2& b){
+float Vec2::det(const Vec2& a, const Vec2& b){
     return a.a * b.a - a.b * b.b;
 }
 
-Vec2 Vec2::dist(Vec2& a, Vec2& b){
-    a.sub(b);
-    return a;
+Vec2 Vec2::dist(const Vec2& a, const Vec2& b){
+    Vec2 r = a.copy().sub(b);
+    return r;
 }
 
-float Vec2::angleBetween(Vec2& a, Vec2& b){
+float Vec2::angleBetween(const Vec2& a, const Vec2& b){
     return atan2(det(a,b), dot(a,b));
     //return acosf( Vec2::dot(a,b) / a.mag() * b.mag() );
 }
@@ -256,21 +303,90 @@ Matrix2x2 Matrix2x2::GetIdentity(){
 }
 
 
-
 // Operators overload
 
-void Vec2::operator= (const Vec3& copy){
-    a = copy.a;
-    b = copy.b;
+
+Vec2::operator String() const{
+    String v = "[" + String(a,4)  + "," + String(b,4) + "]";
+    return v;
 }
 
+float& Vec2::operator[](int i){
+    if(i == 0) return x;
+    if(i == 1) return y;
+    //Console::error("Vec2") << "Index out of bounds" << Console::endl; 
+    return x;
+}
+
+Vec2 operator+(const Vec2& a, const Vec2& b){
+    Vec2 r = a;
+    r.a += b.a;
+    r.b += b.b;
+    return r;
+}
+Vec2 operator-(const Vec2& a, const Vec2& b){
+    Vec2 r = a;
+    r.a -= b.a;
+    r.b -= b.b;
+    return r;
+}
+
+Vec2& Vec2::operator+=(const Vec2& u ){
+    a += u.a;
+    b += u.b;
+    return *this;
+}
+Vec2& Vec2::operator-=(const Vec2& u ){
+    a -= u.a;
+    b -= u.b;
+    return *this;
+}
+Vec2& Vec2::operator+=(float u ){
+    a += u;
+    b += u;
+    return *this;
+}
+Vec2& Vec2::operator-=(float u ){
+    a -= u;
+    b -= u;
+    return *this;
+}
+Vec2& Vec2::operator*=(float u){
+    a *= u;
+    b *= u;
+    return *this;
+}
+Vec2& Vec2::operator/=(float u ){
+    a /= u;
+    b /= u;
+    return *this;
+}
+
+Vec2& Vec2::operator=(const Vec2& copy){
+    a = copy.a;
+    b = copy.b;
+    return *this;
+}
+
+
+Vec2 operator*(const Vec2& u, const Vec2& v){ //hamadard product
+    return Vec2(u.a * v.a, u.b * v.b);
+} 
+Vec2 operator/(const Vec2& u, const Vec2& v){ //hamadard division
+    return Vec2(u.a / v.a, u.b / v.b);
+} 
+Vec2 operator*(const Vec2& u, float v){ //scalar multiplication
+    return Vec2(u.a*v, u.b*v);
+} 
+Vec2 operator/(const Vec2& u, float v){ //scalar division
+    return Vec2(u.a/v, u.b/v);
+} 
+
 bool operator== (const Vec2& a, const Vec2& b){ 
-    return (a.a == b.a &&
-                a.b == b.b);
+    return (a.a == b.a && a.b == b.b);
 }
 bool operator!= (const Vec2& a, const Vec2& b){ 
-    return (a.a != b.a ||
-                a.b != b.b);
+    return (a.a != b.a || a.b != b.b);
 }
 
 bool operator== (const Matrix2x2& a, const Matrix2x2& b){ 

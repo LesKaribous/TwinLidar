@@ -1,16 +1,16 @@
 #pragma once
-#include "math/Geometry.h"
-#include "ConsoleLevel.h"
-
-#include <Arduino.h>
+#include "consoleLevel.h"
+#include "utils/geometry.h"
 
 class ConsoleStream {
 public:
-	ConsoleStream(ConsoleLevel lvl, const String& origin = "");
+
+	ConsoleStream(ConsoleLevel lvl, const String& origin);
 	
 	ConsoleStream& operator<<(short);
 	ConsoleStream& operator<<(int);
 	ConsoleStream& operator<<(long);
+	ConsoleStream& operator<<(size_t);
 	ConsoleStream& operator<<(float);
 	ConsoleStream& operator<<(Vec2);
 	ConsoleStream& operator<<(Vec3);
@@ -21,8 +21,6 @@ public:
 	ConsoleStream& operator<<(const char*);
 
 private:
-	String header();
-	
-	ConsoleLevel _level;
+	static String header(ConsoleLevel lvl);
 	bool _ignored;
 };
