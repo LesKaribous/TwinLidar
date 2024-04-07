@@ -1,58 +1,12 @@
 #pragma once
 #include "services/service.h"
+#include "request.h"
 #include <map>
 
-using requestCallback_ptr = void (*)(const String&);
+class Request;
 
-class Intercom;
-
-class Request {
-public:
-    enum class Status{
-        IDLE,
-        SENT,
-        TIMEOUT,
-        OK,
-        CLOSED,
-        ERROR
-    };
-    
-    Request(const String& payload,  long timeout = 5000, requestCallback_ptr callback = nullptr, callback_ptr timeout_callback = nullptr);
-
-    void setTimeoutCallback(callback_ptr func);
-    void setCallback(requestCallback_ptr func);
-
-    void send(Intercom& channel);
-    void close();
-    void setStatus(Status status);
-    
-    void onTimeout();
-    void onResponse(const String& response);
-    
-    bool isTimedOut() const;
-
-    uint32_t ID() const;
-    Status getStatus() const;
-    String getPayload() const;
-    const String& getMessage() const;
-    const String& getResponse() const;
-    unsigned long getTimeout() const;
-    unsigned long getResponseTime() const;
-    unsigned long getLastSent() const;
-    
-private:
-    uint32_t _uid;
-    String _content;
-    String _response;
-    unsigned long _lastSent;
-    unsigned long _responseTime;
-    unsigned long _timeout;
-
-    Status _status;
-    requestCallback_ptr _callback;
-    callback_ptr _timeoutCallback;
-    static uint32_t _uidCounter;
-};
+using messageCallback_ptr = void (*)(const String&);
+using requestCallback_ptr = void (*)(const Request&);
 
 class Intercom : public Service{
 public:
@@ -72,6 +26,7 @@ public:
     String getRequestResponse(const uint32_t&);
 
     void setConnectLostCallback(callback_ptr callback);
+    void setRequestCallback(requestCallback_ptr callback);
     void setConnectionSuccessCallback(callback_ptr callback);
 
     inline bool isConnected(){return _connected;}
@@ -84,8 +39,9 @@ private:
 
     Stream& _stream;
     std::map<uint32_t,Request> _sentRequests;
-    std::map<uint32_t,Request> _receivedRequests;
+    //std::map<uint32_t,Request> _receivedRequests;
 
+    requestCallback_ptr onRequestCallback = nullptr;
     callback_ptr onConnectionLost = nullptr;
     callback_ptr onConnectionSuccess = nullptr;
 
@@ -93,7 +49,6 @@ private:
     unsigned long _lastPing = 0;
     bool _connected = false;
 
-    void _sendRequest(Request& req);
     void _processIncomingData();
     void _processPendingRequests();
 

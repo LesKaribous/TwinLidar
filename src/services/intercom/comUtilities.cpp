@@ -1,5 +1,6 @@
 #include "comUtilities.h"
 #include <FastCRC.h>
+#include "os/console.h"
 
 FastCRC8 CRC8;
 
@@ -19,7 +20,12 @@ uint32_t parseUInt32(const byte (&buf)[4])
     return uval;
 }
 
-bool checkCRC(const String& str, const char crc){
-    return CRC8.smbus((byte*)str.c_str(), str.length()) == crc;
+bool checkCRC(const String& str, const uint8_t crc){
+    uint8_t mcrc = CRC8.smbus((byte*)str.c_str(), str.length());
+    /*
+    Console::print(mcrc);
+    Console::print("|");
+    Console::println(crc);*/
+    return mcrc == crc;
 }
 

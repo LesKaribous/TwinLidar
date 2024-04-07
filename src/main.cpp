@@ -17,10 +17,12 @@ void onUpdate(); //Execute before robotProgram (idle loop)
 
 void onIntercomConnected();
 void onIntercomDisconnected();
-void onIntercomMessage(const String&);
+void onIntercomRequest(const Request&);
+void onIntercomRequestReply(const Request&);
 
 void setup(){
 	Console::init();
+    Console::setLevel(ConsoleLevel::VERBOSE);
 
 	os.setRountine(OS::BOOT, onBoot);				//Execute once						(setup)
 	os.setRountine(OS::RUNNING, onUpdate);			//Execute during match				(loop)
@@ -31,11 +33,12 @@ void loop(){
 }
 
 void onBoot(){
-	os.attachService(&lidar);
+	//os.attachService(&lidar);
 	os.attachService(&pixel);
 	os.attachService(&intercom);
 	intercom.setConnectLostCallback(onIntercomDisconnected);
     intercom.setConnectionSuccessCallback(onIntercomConnected);
+    intercom.setRequestCallback(onIntercomRequest);
 
 	lidar.setHeading(180);
     lidar.setFOV(360);
@@ -44,6 +47,12 @@ void onBoot(){
 }
 
 void onUpdate(){
+    static long lastReq = 0;
+    if(millis() - lastReq > 50){
+        //intercom.sendRequest("lidar2main", 100, onIntercomRequestReply);
+        //Console::println("*");
+        lastReq = millis();
+    }
 }
 
 void onIntercomConnected(){
@@ -54,8 +63,25 @@ void onIntercomDisconnected(){
 //huh!
 }
 
-void onIntercomMessage(const String& command){
-	Console::println(command);
+void onIntercomRequestReply(const Request& req){
+    static long avg_reply_time = 0;
+    static long req_count = 0;
+    static long req_time_sum = 0;
+    req_time_sum += req.getResponseTime();
+    req_count++;
+    avg_reply_time = req_time_sum/req_count;
+    Console::println(req.getResponse());
+    //Console::println("AVG reply time : " + String(avg_reply_time));
+    //Console::println("reply time : " + String(req.getResponseTime()));
+}
+
+void onIntercomRequest(const Request& req){
+
+    Console::println(req.getContent());
+    return;
+
+    String command = req.getContent();
+
 	if (command.startsWith("displayIntercom"))
     {
         pixel.setMode(Pixel::INTERCOM);
