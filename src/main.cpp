@@ -12,6 +12,8 @@ static Lidar& lidar = Lidar::instance();
 static Pixel& pixel = Pixel::instance();
 static Intercom& intercom = Intercom::instance();
 
+static int local_counter = 0;
+
 void onBoot(); //Execute once at boot
 void onUpdate(); //Execute before robotProgram (idle loop)
 
@@ -79,7 +81,13 @@ void onIntercomRequestReply(Request& req){
 void onIntercomRequest(Request& req){
 
     //Console::println(req.getContent());
-    req.reply("ok");
+    if(req.getContent() == "+")
+        local_counter++;
+    else{
+        req.reply(req.getContent());
+        req.reply("=" + String(local_counter));
+    }
+    
     return;
 
     String command = req.getContent();
