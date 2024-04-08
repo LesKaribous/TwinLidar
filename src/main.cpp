@@ -48,10 +48,11 @@ void onBoot(){
 
 void onUpdate(){
     static long lastReq = 0;
-    if(millis() - lastReq > 50){
+    if(millis() - lastReq > 100){
         //intercom.sendRequest("lidar2main", 100, onIntercomRequestReply);
         //Console::println("*");
         lastReq = millis();
+        Console::println(lidar.getPosition());
     }
 }
 
@@ -94,6 +95,12 @@ void onIntercomRequest(Request& req){
             if(x > 10 && x < 3000 && y > 10 && y < 2000){
                 lidar.setPosition(x, y, z);
             }
+            req.reply("OK");
         }
+    }
+    else if (command.startsWith("getRobotPosition"))
+    {
+        Vec3 pos = lidar.getPosition();
+        req.reply("(" + String(pos.x) + "," + String(pos.y) + "," + String(pos.z));
     }
 }

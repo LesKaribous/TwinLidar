@@ -1,5 +1,6 @@
 #pragma once
 #include "services/service.h"
+#include "utils/geometry.h"
 #include <ld06.h>
 
 class Lidar : public Service{
@@ -13,6 +14,7 @@ public:
     int getDistance(int angle);
 
     void setPosition(float x, float y, float theta);
+    Vec3 getPosition();
     void setHeading(int heading);
 
     int getMaxAngle();
