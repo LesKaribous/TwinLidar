@@ -52,7 +52,7 @@ void onUpdate(){
         //intercom.sendRequest("lidar2main", 100, onIntercomRequestReply);
         //Console::println("*");
         lastReq = millis();
-        Console::println(lidar.getPosition());
+        Console::println(String(lidar.getPosition()));
     }
 }
 
@@ -85,22 +85,33 @@ void onIntercomRequest(Request& req){
     }
     else if (command.startsWith("setRobotPosition"))
     {
-        String argString = command.substring(command.indexOf("(") + 1, command.indexOf(")"));
-        std::vector<String> args = CommandHandler::extractArguments(argString);
+        int openBracket = command.indexOf("(");
+        int closedBracket = command.indexOf(")");
+        if(openBracket == -1 || closedBracket == -1)return;
+
+        String argString = command.substring(openBracket + 1, closedBracket);
+
+        std::vector<String> args;
+        int comma;
+        
+        comma = argString.indexOf(",");if(comma == -1) return;
+        args.push_back(argString.substring(0, comma));
+        argString = argString.substring(comma+1);
+
+        comma = argString.indexOf(",");if(comma == -1) return;
+        args.push_back(argString.substring(0, comma));
+        argString = argString.substring(comma+1);
+
+        args.push_back(argString);
+        
         if(args.size() == 3){
             float x = args[0].toFloat();
             float y = args[1].toFloat();
-            float z = args[3].toFloat();
+            float z = args[2].toFloat();
 
-            if(x > 10 && x < 3000 && y > 10 && y < 2000){
-                lidar.setPosition(x, y, z);
-            }
-            req.reply("OK");
+            lidar.setPosition(x, y, z);
+
+            req.reply("setRobotPosition(" + String(x) + "," + String(y) + "," + String(z) + ")");
         }
-    }
-    else if (command.startsWith("getRobotPosition"))
-    {
-        Vec3 pos = lidar.getPosition();
-        req.reply("(" + String(pos.x) + "," + String(pos.y) + "," + String(pos.z));
     }
 }

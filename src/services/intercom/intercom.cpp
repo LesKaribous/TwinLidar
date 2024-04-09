@@ -165,9 +165,9 @@ void Intercom::_processIncomingData() {
                 int responseId = incomingMessage.substring(0, id_separatorIndex).toInt(); //get uuid and ignore the 'r'
                 String responseData = incomingMessage.substring(id_separatorIndex + 1, crc_separatorIndex); //without crc
                 int crc = incomingMessage.substring(crc_separatorIndex + 1).toInt(); //without crc
-                
+                //Console::println(responseData);
                 if(!checkCRC(incomingMessage.substring(0, crc_separatorIndex), crc)){
-                    Console::error("Intercom") << "Bad crc for message " << incomingMessage << Console::endl;
+                    Console::trace("Intercom") << "Bad crc for message " << incomingMessage << Console::endl;
                     continue;
                 }
 
