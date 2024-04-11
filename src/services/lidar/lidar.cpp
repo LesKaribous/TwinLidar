@@ -14,14 +14,14 @@ void Lidar::onAttach()
 {
 	sensor.begin();
 
-	sensor.enablePolarFiltering();
-	sensor.enableCartesianFiltering();
+	sensor.disablePolarFiltering();
+	sensor.disableCartesianFiltering();
 	sensor.enableCartesianGrid();
 	sensor.enablePolarGrid();
 	
 	sensor.setPolarResolution(10);
 	sensor.setCartesianSize(3000,2000);
-	sensor.setPolarRange(200, 3000, -180, 180);
+	sensor.setPolarRange(200, 3000, -360, 360);
 	sensor.setIntensityThreshold(200);
 	// sensor.disableCRC();
 	delay(200);

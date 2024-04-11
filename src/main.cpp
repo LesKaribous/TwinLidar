@@ -83,8 +83,8 @@ void onIntercomRequest(Request& req){
         int closedBracket = command.indexOf(")");
         if(openBracket == -1 || closedBracket == -1)return;
         
-        float angle = command.substring(openBracket + 1, closedBracket).toFloat();
-        req.reply(lidar.getDistance(angle*DEG_TO_RAD));
+        int angle = command.substring(openBracket + 1, closedBracket).toInt();
+        req.reply(lidar.getDistance(angle));
     }
     else if (command.startsWith("setRobotPosition"))
     {
