@@ -77,6 +77,14 @@ void onIntercomRequest(Request& req){
         pixel.setMode(Pixel::LIDAR);
         Console::println("displayLidar");
         req.reply("OK");
+    }else if (command.startsWith("getDistance"))
+    {
+        int openBracket = command.indexOf("(");
+        int closedBracket = command.indexOf(")");
+        if(openBracket == -1 || closedBracket == -1)return;
+        
+        float angle = command.substring(openBracket + 1, closedBracket).toFloat();
+        req.reply(lidar.getDistance(angle*DEG_TO_RAD));
     }
     else if (command.startsWith("setRobotPosition"))
     {
