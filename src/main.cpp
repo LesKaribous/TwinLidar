@@ -40,17 +40,12 @@ void onBoot(){
     intercom.setConnectionSuccessCallback(onIntercomConnected);
     intercom.setRequestCallback(onIntercomRequest);
 
-	lidar.setHeading(180);
-    lidar.setFOV(360);
-
 	Console::info("OS") << "Boot finished" << Console::endl;
 }
 
 void onUpdate(){
     static long lastReq = 0;
     if(millis() - lastReq > 100){
-        //intercom.sendRequest("lidar2main", 100, onIntercomRequestReply);
-        //Console::println("*");
         lastReq = millis();
         Console::println(String(lidar.getPosition()));
     }
@@ -111,7 +106,7 @@ void onIntercomRequest(Request& req){
 
             lidar.setPosition(x, y, z);
 
-            req.reply("setRobotPosition(" + String(x) + "," + String(y) + "," + String(z) + ")");
+            //req.reply("setRobotPosition(" + String(x) + "," + String(y) + "," + String(z) + ")");
         }
     }
 }

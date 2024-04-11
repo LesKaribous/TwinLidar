@@ -7,6 +7,9 @@
 namespace Pin{
     const int PIXELS = 4;
 
+    const int ScreenSDA = 18;
+    const int ScreenSCL = 19;
+
     namespace Lidar{
         const int
             Rx = 7,
