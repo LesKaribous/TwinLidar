@@ -28,7 +28,7 @@ void Lidar::onAttach()
 	sensor.enablePolarGrid();
 	
 	sensor.setPolarResolution(10);
-	sensor.setCartesianRange(1500, 2000, 100);
+	sensor.setCartesianRange(3000, 2000, 100);
 	sensor.setPolarRange(200, 2500, 0, 360);
 	sensor.setIntensityThreshold(240);
 	// sensor.disableCRC();

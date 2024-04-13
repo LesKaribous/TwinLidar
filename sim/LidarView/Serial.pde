@@ -6,7 +6,7 @@ boolean connected = false;
 int baud = 115200;
 
 public void serialBegin() {
-  String port = "COM5";
+  String port = "COM10";
   printArray(Serial.list());
   lidarPort = new Serial(this, port, baud);
   println("Serial connection has begin on port " + port);
@@ -81,16 +81,16 @@ void checkSerial() {
           
           //println(argsP);
           
-          float[] value = {0, 0, 0, 0, 0};
-          if (argsP.length == 5) {
+          float[] value = {0, 0, 0};
+          if (argsP.length == 3) {
 
-            for (int i = 0; i < 5; i++) {
+            for (int i = 0; i < 3; i++) {
               value[i] = Float.parseFloat(argsP[i]);
             }
             //println(value);
           }
           
-          sectors.add(new Sector(int(value[0]), int(value[1]), value[2], value[3], value[4]));
+          sectors.add(new Sector(int(value[0]), int(value[1]), value[2]));
         }
       }
     }
