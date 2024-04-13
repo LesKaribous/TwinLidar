@@ -61,10 +61,14 @@ void Pixel::drawLidar(Lidar& lidar){
     for(int i = 0; i < Settings::NUM_PIXELS; i++){
         angle = i*360.0/float(Settings::NUM_PIXELS);
         float dist = lidar.getDistance(angle);
-        if(dist == 0) continue;
-        int ledCenter = map(angle,0,359,0,Settings::NUM_PIXELS);
-        int ledRed    = std::min(std::max(map(dist,300,1000,255,0),0.0f), 255.0f);
-        int ledGreen  = std::min(std::max(map(dist,300,1000,0,255), 0.0f), 255.0f);
+        int ledCenter = map(angle,360,0,0,Settings::NUM_PIXELS);
+        if(dist == 0){
+            pixels.setPixelColor(ledCenter, pixels.Color(0,   0,   0));
+            continue;
+        }
+        
+        int ledRed    = std::min(std::max(map(dist,200,1000,255,0),0.0f), 255.0f);
+        int ledGreen  = std::min(std::max(map(dist,200,1000,0,255), 0.0f), 255.0f);
         pixels.setPixelColor(ledCenter, pixels.Color(ledRed,   ledGreen,   10));
     }
 }

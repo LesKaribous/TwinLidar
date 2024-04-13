@@ -1,6 +1,6 @@
 #pragma once
 #include "utils/job.h"
-
+#define RUN_EVERY(X, D){static long lastRun = 0;if(millis()-lastRun > D){lastRun = millis();X;}}
 class Timer : public Job{
 public:
 

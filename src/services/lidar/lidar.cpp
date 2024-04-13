@@ -1,6 +1,7 @@
 #include "lidar.h"
 #include "os/console.h"
 #include "settings.h"
+#include "utils/timer/timer.h"
 #include "pin.h"
 
 #include <ld06.h>
@@ -14,27 +15,29 @@ void Lidar::onAttach()
 {
 	sensor.begin();
 
-	sensor.disablePolarFiltering();
-	sensor.disableCartesianFiltering();
+	sensor.enablePolarFiltering();
+	sensor.enableCartesianFiltering();
 	sensor.enableCartesianGrid();
 	sensor.enablePolarGrid();
 	
 	sensor.setPolarResolution(10);
-	sensor.setCartesianSize(3000,2000);
-	sensor.setPolarRange(200, 3000, -360, 360);
-	sensor.setIntensityThreshold(200);
+	sensor.setCartesianRange(1500, 2000, 100);
+	sensor.setPolarRange(200, 1000, 0, 360);
+	sensor.setIntensityThreshold(240);
 	// sensor.disableCRC();
 	delay(200);
 }
 
 void Lidar::onUpdate(){
-    if(enabled()) sensor.readScan();
+    if(enabled()){
+		sensor.readScan();
 
-	static long lastPrint = 0;
+		RUN_EVERY(
+			sensor.resetStats();
+		
+		,1500);
 
-	if(millis() - lastPrint > 500){
-		lastPrint = millis();
-		sensor.printScanTeleplot();
+		//sensor.printScanTeleplot();
 	}
 }
 
