@@ -10,7 +10,7 @@ public:
     void onAttach() override;
     void onUpdate() override;
 
-    int getDistance(int angle);
+    int getDistance(int angle, bool absolute=false);
 
     void setPosition(float x, float y, float theta);
     Vec3 getPosition();

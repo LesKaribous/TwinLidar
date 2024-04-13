@@ -43,12 +43,12 @@ void onBoot(){
 	Console::info("OS") << "Boot finished" << Console::endl;
 }
 
-void onUpdate(){
+void onUpdate(){/*
     static long lastReq = 0;
     if(millis() - lastReq > 1000){
         lastReq = millis();
         Console::println(String(lidar.getPosition()));
-    }
+    }*/
 }
 
 void onIntercomConnected(){
@@ -97,6 +97,29 @@ void onIntercomRequest(Request& req){
             req.reply("OK");
         }
         //req.reply("NOK");
+    }else if (command.startsWith("checkObstacle"))
+    {
+        int openBracket = command.indexOf("(");
+        int closedBracket = command.indexOf(")");
+        if(openBracket == -1 || closedBracket == -1)return;
+        
+        int angle = command.substring(openBracket + 1, closedBracket).toInt();
+
+        bool a = lidar.getDistance(angle) < 400 && lidar.getDistance(angle) > 200;
+        bool b = lidar.getDistance(angle-10) < 350 && lidar.getDistance(angle-10) > 200;
+        bool c = lidar.getDistance(angle-10) < 350 && lidar.getDistance(angle+10) > 200;
+        bool d = lidar.getDistance(angle-10) < 300 && lidar.getDistance(angle-20) > 200;
+        bool e = lidar.getDistance(angle+10) < 300 && lidar.getDistance(angle+20) > 200;
+
+        req.reply(a || b || c || d || e);
+    }else if (command.startsWith("getDistance"))
+    {
+        int openBracket = command.indexOf("(");
+        int closedBracket = command.indexOf(")");
+        if(openBracket == -1 || closedBracket == -1)return;
+        
+        int angle = command.substring(openBracket + 1, closedBracket).toInt();
+        req.reply(lidar.getDistance(angle));
     }
 	else if (command.startsWith("displayIntercom"))
     {
@@ -109,14 +132,6 @@ void onIntercomRequest(Request& req){
         pixel.setMode(Pixel::LIDAR);
         Console::println("displayLidar");
         req.reply("OK");
-    }else if (command.startsWith("getDistance"))
-    {
-        int openBracket = command.indexOf("(");
-        int closedBracket = command.indexOf(")");
-        if(openBracket == -1 || closedBracket == -1)return;
-        
-        int angle = command.substring(openBracket + 1, closedBracket).toInt();
-        req.reply(lidar.getDistance(angle));
     }
     
 }

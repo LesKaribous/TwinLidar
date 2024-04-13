@@ -17,7 +17,7 @@ void Lidar::onAttach()
 
 	sensor.enablePolarFiltering();
 	sensor.enableCartesianFiltering();
-	sensor.enableCartesianGrid();
+	sensor.disableCartesianGrid();
 	sensor.enablePolarGrid();
 	
 	sensor.setPolarResolution(10);
@@ -41,8 +41,9 @@ void Lidar::onUpdate(){
 	}
 }
 
-int Lidar::getDistance(int angle){
-	return sensor.getDistanceAtAngle(angle);
+int Lidar::getDistance(int angle, bool absolute){
+	if(absolute) return sensor.getDistanceAtAngle(angle);
+	else return sensor.getDistanceAtAngle(angle+m_theta);
 }
 
 void Lidar::setPosition(float x, float y, float theta){

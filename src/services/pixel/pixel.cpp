@@ -60,7 +60,7 @@ void Pixel::drawLidar(Lidar& lidar){
     float angle = 0;
     for(int i = 0; i < Settings::NUM_PIXELS; i++){
         angle = i*360.0/float(Settings::NUM_PIXELS);
-        float dist = lidar.getDistance(angle);
+        float dist = lidar.getDistance(angle, false);
         int ledCenter = map(angle,360,0,0,Settings::NUM_PIXELS);
         if(dist == 0){
             pixels.setPixelColor(ledCenter, pixels.Color(0,   0,   0));
