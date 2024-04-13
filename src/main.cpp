@@ -15,10 +15,7 @@ static Intercom& intercom = Intercom::instance();
 void onBoot(); //Execute once at boot
 void onUpdate(); //Execute before robotProgram (idle loop)
 
-void onIntercomConnected();
-void onIntercomDisconnected();
 void onIntercomRequest(Request&);
-void onIntercomRequestReply(Request&);
 
 void setup(){
 	Console::init();
@@ -36,8 +33,6 @@ void onBoot(){
 	os.attachService(&lidar);
 	os.attachService(&pixel);
 	os.attachService(&intercom);
-	intercom.setConnectLostCallback(onIntercomDisconnected);
-    intercom.setConnectionSuccessCallback(onIntercomConnected);
     intercom.setRequestCallback(onIntercomRequest);
 
 	Console::info("OS") << "Boot finished" << Console::endl;
@@ -51,17 +46,6 @@ void onUpdate(){/*
     }*/
 }
 
-void onIntercomConnected(){
-//yay!
-}
-
-void onIntercomDisconnected(){
-//huh!
-}
-
-void onIntercomRequestReply(Request& req){
-
-}
 
 void onIntercomRequest(Request& req){
     String command = req.getContent();
@@ -107,9 +91,9 @@ void onIntercomRequest(Request& req){
 
         bool a = lidar.getDistance(angle) < 400 && lidar.getDistance(angle) > 200;
         bool b = lidar.getDistance(angle-10) < 350 && lidar.getDistance(angle-10) > 200;
-        bool c = lidar.getDistance(angle-10) < 350 && lidar.getDistance(angle+10) > 200;
-        bool d = lidar.getDistance(angle-10) < 300 && lidar.getDistance(angle-20) > 200;
-        bool e = lidar.getDistance(angle+10) < 300 && lidar.getDistance(angle+20) > 200;
+        bool c = lidar.getDistance(angle+10) < 350 && lidar.getDistance(angle+10) > 200;
+        bool d = lidar.getDistance(angle-20) < 250 && lidar.getDistance(angle-20) > 200;
+        bool e = lidar.getDistance(angle+20) < 250 && lidar.getDistance(angle+20) > 200;
 
         req.reply(a || b || c || d || e);
     }else if (command.startsWith("getDistance"))

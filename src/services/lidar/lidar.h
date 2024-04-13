@@ -1,7 +1,7 @@
 #pragma once
 #include "services/service.h"
 #include "utils/geometry.h"
-#include <ld06.h>
+#include "services/lidar/ld06.h"
 
 class Lidar : public Service{
 public:
@@ -10,7 +10,7 @@ public:
     void onAttach() override;
     void onUpdate() override;
 
-    int getDistance(int angle, bool absolute=false);
+    int getDistance(int angle, bool absolute=true);
 
     void setPosition(float x, float y, float theta);
     Vec3 getPosition();
