@@ -67,8 +67,8 @@ void Pixel::drawLidar(Lidar& lidar){
             continue;
         }
         
-        int ledRed    = std::min(std::max(map(dist,200,1000,255,0),0.0f), 255.0f);
-        int ledGreen  = std::min(std::max(map(dist,200,1000,0,255), 0.0f), 255.0f);
+        int ledRed    = std::min(std::max(map(dist,350,1000,255,0),0.0f), 255.0f);
+        int ledGreen  = std::min(std::max(map(dist,350,1000,0,255), 0.0f), 255.0f);
         pixels.setPixelColor(ledCenter, pixels.Color(ledRed,   ledGreen,   10));
     }
 }

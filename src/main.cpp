@@ -89,11 +89,11 @@ void onIntercomRequest(Request& req){
         
         int angle = command.substring(openBracket + 1, closedBracket).toInt();
 
-        bool a = lidar.getDistance(angle) < 420 && lidar.getDistance(angle) > 200;
-        bool b = lidar.getDistance(angle-10) < 400 && lidar.getDistance(angle-10) > 200;
-        bool c = lidar.getDistance(angle+10) < 400 && lidar.getDistance(angle+10) > 200;
-        bool d = lidar.getDistance(angle-30) < 380 && lidar.getDistance(angle-20) > 200;
-        bool e = lidar.getDistance(angle+30) < 380 && lidar.getDistance(angle+20) > 200;
+        bool a = lidar.getDistance(angle) < 440 && lidar.getDistance(angle) > 200;
+        bool b = lidar.getDistance(angle-10) < 380 && lidar.getDistance(angle-10) > 200;
+        bool c = lidar.getDistance(angle+10) < 380 && lidar.getDistance(angle+10) > 200;
+        bool d = lidar.getDistance(angle-20) < 340 && lidar.getDistance(angle-20) > 200;
+        bool e = lidar.getDistance(angle+20) < 340 && lidar.getDistance(angle+20) > 200;
 
         req.reply(a || b || c || d || e);
     }else if (command.startsWith("getDistance"))
