@@ -54,6 +54,7 @@ public:
 
     //Filtering
     void setIntensityThreshold(int threshold);
+    float getCountAtAngle(int angle); //Faster with sectoring enable
     float getDistanceAtAngle(int angle); //Faster with sectoring enable
 
     // Getters

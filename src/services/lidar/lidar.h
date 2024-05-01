@@ -10,6 +10,7 @@ public:
     void onAttach() override;
     void onUpdate() override;
 
+    int getCount(int angle, bool absolute=true);
     int getDistance(int angle, bool absolute=true);
 
     void setPosition(float x, float y, float theta);

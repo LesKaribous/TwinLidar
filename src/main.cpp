@@ -38,7 +38,8 @@ void onBoot(){
 	Console::info("OS") << "Boot finished" << Console::endl;
 }
 
-void onUpdate(){/*
+void onUpdate(){
+    /*
     static long lastReq = 0;
     if(millis() - lastReq > 1000){
         lastReq = millis();
@@ -89,13 +90,40 @@ void onIntercomRequest(Request& req){
         
         int angle = command.substring(openBracket + 1, closedBracket).toInt();
 
-        bool a = lidar.getDistance(angle) < 440 && lidar.getDistance(angle) > 200;
-        bool b = lidar.getDistance(angle-10) < 380 && lidar.getDistance(angle-10) > 200;
-        bool c = lidar.getDistance(angle+10) < 380 && lidar.getDistance(angle+10) > 200;
-        bool d = lidar.getDistance(angle-20) < 340 && lidar.getDistance(angle-20) > 200;
-        bool e = lidar.getDistance(angle+20) < 340 && lidar.getDistance(angle+20) > 200;
 
-        req.reply(a || b || c || d || e);
+        //Dist + deccel dist
+        bool a = lidar.getDistance(angle) < 450 + 100;
+        bool b = lidar.getDistance(angle-10) < 450 + 100;
+        bool c = lidar.getDistance(angle+10) < 450 + 100;
+        bool d = lidar.getDistance(angle-20) < 440 + 100;
+        bool e = lidar.getDistance(angle+20) < 440 + 100;
+        bool f = lidar.getDistance(angle-30) < 420 + 75;
+        bool g = lidar.getDistance(angle+30) < 420 + 75;
+        bool h = lidar.getDistance(angle-40) < 400 + 50;
+        bool i = lidar.getDistance(angle+40) < 400 + 50;
+
+        constexpr int minPoint = 2;
+        bool ca = lidar.getCount(angle) > minPoint;
+        bool cb = lidar.getCount(angle-10) > minPoint;
+        bool cc = lidar.getCount(angle+10) > minPoint;
+        bool cd = lidar.getCount(angle-20) > minPoint;
+        bool ce = lidar.getCount(angle+20) > minPoint;
+        bool cf = lidar.getCount(angle-30) > minPoint;
+        bool cg = lidar.getCount(angle+30) > minPoint;
+        bool ch = lidar.getCount(angle-40) > minPoint;
+        bool ci = lidar.getCount(angle+40) > minPoint;
+
+        /*
+        if((a && ca) || (b && cb) || (c && cc) || (d && cd) || (e && ce) || ){
+        
+        Console::info("d0") <<  lidar.getDistance(angle) << " | " << lidar.getCount(angle) << Console::endl;
+        Console::info("d-10") <<  lidar.getDistance(angle-10) << " | " << lidar.getCount(angle-10) << Console::endl;
+        Console::info("d+10") <<  lidar.getDistance(angle+10) << " | " << lidar.getCount(angle+10) << Console::endl;
+        Console::info("d-20") <<  lidar.getDistance(angle-20) << " | " << lidar.getCount(angle-20) << Console::endl;
+        Console::info("d+20") <<  lidar.getDistance(angle+20) << " | " << lidar.getCount(angle+20) << Console::endl;
+        }/**/
+
+        req.reply((a && ca) || (b && cb) || (c && cc) || (d && cd) || (e && ce) || (f && cf) || (g && cg) || (h && ch) || (i && ci));
     }else if (command.startsWith("getDistance"))
     {
         int openBracket = command.indexOf("(");

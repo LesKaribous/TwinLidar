@@ -62,8 +62,14 @@ void PolarGrid::setSectorsResolution(float angle){
 
 float PolarGrid::getDistanceAtAngle(float angle){
     int index = floor(angle / _sectorResolution);
-    if(sectors[index].avgDistance < 5) return 0;
+    if(sectors[index].avgDistance < 5) return infinityf();
     return sectors[index].avgDistance;
+}
+
+float PolarGrid::getCountAtAngle(float angle){
+    int index = floor(angle / _sectorResolution);
+    if(sectors[index].avgDistance < 5) return 0;
+    return sectors[index].points.size();
 }
 
 //Sectors

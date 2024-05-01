@@ -34,6 +34,7 @@ public:
     void print();
 
     void setSectorsResolution(float angle);
+    float getCountAtAngle(float angle); //Faster with sectoring enable
     float getDistanceAtAngle(float angle); //Faster with sectoring enable
     void printSectors();
 

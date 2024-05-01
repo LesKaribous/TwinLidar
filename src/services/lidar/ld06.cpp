@@ -16,7 +16,7 @@ LD06::LD06(int pin, HardwareSerial& serial) : _pin(pin), _lidarSerial(&serial){}
 void LD06::begin(){
     LIDAR_SERIAL.begin(230400, SERIAL_8N1);
     pinMode(_pin, OUTPUT);
-    digitalWrite(_pin, HIGH);
+    digitalWrite(_pin, LOW);
 }
 
 /* Read lidar packet data,
@@ -108,8 +108,8 @@ void LD06::readScan(){
             //data.x = lidarPos_x + data.distance * cos( data.angle * DEG_TO_RAD + lidarPos_theta*DEG_TO_RAD);
             //data.y = lidarPos_y + data.distance * sin( data.angle * DEG_TO_RAD + lidarPos_theta*DEG_TO_RAD);
 
-            data.x = lidarPos_x + data.distance * cosf( (data.angle + lidarPos_theta) * DEG_TO_RAD);
-            data.y = lidarPos_y - data.distance * sinf( (data.angle + lidarPos_theta) * DEG_TO_RAD);
+            data.x = lidarPos_x + float(data.distance) * cosf( (data.angle + lidarPos_theta) * DEG_TO_RAD);
+            data.y = lidarPos_y - float(data.distance) * sinf( (data.angle + lidarPos_theta) * DEG_TO_RAD);
 
 
             data.intensity = confidences[i];
@@ -150,18 +150,21 @@ void LD06::resetStats(){
 }
 
 void LD06::computeData(uint8_t *values){
-    _speed = float(values[3] << 8 | values[2]) / 100;
-    _FSA = float(values[5] << 8 | values[4]) / 100;
-    _LSA = float(values[PACKET_SIZE - 4] << 8 | values[PACKET_SIZE - 5]) / 100;
+    _speed = float(values[3] << 8 | values[2]) / 100.0;
+    _FSA = float(values[5] << 8 | values[4]) / 100.0;
+    _LSA = float(values[PACKET_SIZE - 4] << 8 | values[PACKET_SIZE - 5]) / 100.0;
     _timeStamp = int(values[PACKET_SIZE - 2] << 8 | values[PACKET_SIZE - 3]);
 
-    _angleStep = ((_LSA - _FSA > 0) ? (_LSA - _FSA) / (PTS_PER_PACKETS - 1) : (_LSA + (360 - _FSA)) / (PTS_PER_PACKETS - 1));
+    float packetAngle = _LSA - _FSA;
+    if(packetAngle < 0) packetAngle = (_LSA + (360.0 - _FSA));
+
+    _angleStep = packetAngle / float(PTS_PER_PACKETS - 1);
 
     if (_angleStep > 20)
         return;
 
     for (int i = 0; i < PTS_PER_PACKETS; i++){
-        float raw_deg = 360.0 - _FSA + i * _angleStep;
+        float raw_deg = 360.0 - _FSA - i * _angleStep;
         
         raw_deg = fmodf(raw_deg,360.0); //[0, 360]
         if (raw_deg < 0)
@@ -221,6 +224,28 @@ float LD06::getDistanceAtAngle(int angle){ //Faster with sectoring enable
     return count == 0 ? 0 : averageDistance/float(count);
 }
 
+
+float LD06::getCountAtAngle(int angle){ //Faster with sectoring enable
+    
+    angle -= lidarPos_theta;
+    angle = fmodf(angle,360); //[0, 360]
+    if (angle < 0)
+        angle += 360;
+
+    //Serial.println(angle);
+    if(_usePolarGrid){
+        return polar_grid.getCountAtAngle(angle);
+    }
+    
+    if(scan.size() == 0) return 0;
+    int count = 0;
+    for(auto& point : scan){
+        if(point.angle > angle - 1 && point.angle < angle - 1 ){ //map on 360°
+            count++;
+        }
+    }
+    return count;
+}
 
 // Print full scan using csv format
 void LD06::printScanCSV(){

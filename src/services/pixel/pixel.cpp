@@ -62,13 +62,15 @@ void Pixel::drawLidar(Lidar& lidar){
         angle = i*360.0/float(Settings::NUM_PIXELS);
         float dist = lidar.getDistance(angle, false);
         int ledCenter = map(angle,360,0,0,Settings::NUM_PIXELS);
-        if(dist == 0){
+        if(dist == 0 || dist > 3000){
             pixels.setPixelColor(ledCenter, pixels.Color(0,   0,   0));
             continue;
         }
+
+        dist = constrain(dist, 300, 1000);
         
-        int ledRed    = std::min(std::max(map(dist,350,1000,255,0),0.0f), 255.0f);
-        int ledGreen  = std::min(std::max(map(dist,350,1000,0,255), 0.0f), 255.0f);
+        int ledRed    = constrain(map(dist,300,1000,255,0), 0.0f, 255.0f);
+        int ledGreen  = constrain(map(dist,300,1000,0,255), 0.0f, 255.0f);
         pixels.setPixelColor(ledCenter, pixels.Color(ledRed,   ledGreen,   10));
     }
 }

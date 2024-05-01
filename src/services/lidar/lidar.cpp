@@ -42,6 +42,7 @@ void Lidar::onUpdate(){
 		RUN_EVERY(
 			sensor.resetStats();
 		,500);
+		
 		/*
 		RUN_EVERY(
 			sensor.printScanTeleplot();
@@ -57,6 +58,11 @@ void Lidar::onUpdate(){
 int Lidar::getDistance(int angle, bool absolute){
 	if(absolute) return sensor.getDistanceAtAngle(angle);
 	else return sensor.getDistanceAtAngle(angle+m_theta);
+}
+
+int Lidar::getCount(int angle, bool absolute){
+	if(absolute) return sensor.getCountAtAngle(angle);
+	else return sensor.getCountAtAngle(angle+m_theta);
 }
 
 void Lidar::setPosition(float x, float y, float theta){
