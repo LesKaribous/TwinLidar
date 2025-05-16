@@ -1,7 +1,14 @@
 #pragma once
 
 #define LIDAR_SERIAL Serial1
+
+#ifdef TEENSY40
+#define INTERCOM_SERIAL Serial2
+#else
 #define INTERCOM_SERIAL Serial3
+#endif
+
+
 #define INTERCOM_BAUDRATE 31250
 
 namespace Settings{
