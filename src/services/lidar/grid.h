@@ -2,6 +2,7 @@
 #include "geom.h"
 #include <vector>
 #include <unordered_map>
+#include <U8g2lib.h>
 
 #define MAX_POINTS 50
 
@@ -54,6 +55,7 @@ private:
     float _sectorResolution = 10; //° range (each sector is x° wide)
 };
 
+
 class CartesianGrid : public AbstractGrid{
 public:
 
@@ -79,6 +81,10 @@ private:
     int _gridCol;
     int _gridHeight;
     int _gridWidth;
+
+    uint8_t occupancy[128][64];
+    uint32_t lastUpdate[128][64];
+    U8G2_SSD1306_128X64_NONAME_1_SW_I2C u8g2;
 
     GridMode _mode = CORNER;
 };

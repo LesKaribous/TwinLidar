@@ -1,4 +1,5 @@
 #include "grid.h"
+#include "pin.h"
 #include <Arduino.h>
 
 PolarGrid::PolarGrid() : AbstractGrid(POLAR){
@@ -101,14 +102,14 @@ void PolarGrid::Sector::remove(const DataPoint& p){
 }
 
 
-
-
-CartesianGrid::CartesianGrid() : AbstractGrid(CARTESIAN){
+CartesianGrid::CartesianGrid() : AbstractGrid(CARTESIAN), u8g2(U8G2_R0, Pin::ScreenSCL, Pin::ScreenSDA){
     _gridResolution = 100;   //mm
     _gridWidth = 3000;
     _gridHeight = 2000;
     _gridCol = _gridWidth / _gridResolution;      //mm
     _gridRow = _gridHeight / _gridResolution;     //mm
+    u8g2.begin();
+    u8g2.clear();
 }
 
 
@@ -152,14 +153,14 @@ float CartesianGrid::getDistance(float x, float y, float theta) {
     return -1;
 }
 
-void CartesianGrid::store(DataPoint p){
+void CartesianGrid::store(DataPoint p) {
+    int xi = (p.x + _gridWidth / 2.0f) / _gridResolution;
+    int yi = (p.y + _gridHeight / 2.0f) / _gridResolution;
 
-    int index_x = std::min(std::max( static_cast<int>(round(p.x/_gridResolution)),0), _gridCol);
-    int index_y = std::min(std::max( static_cast<int>(round(p.y/_gridResolution)),0), _gridRow);
-
-    int index1D = (index_y * _gridCol) + index_x;
-
-    cells[index1D] = true;
+    if (xi >= 0 && xi < 128 && yi >= 0 && yi < 64) {
+        occupancy[xi][yi] = 255; // full occupancy
+        lastUpdate[xi][yi] = millis(); // mark time
+    }
 }
 
 void CartesianGrid::unstore(DataPoint p){
@@ -173,8 +174,21 @@ void CartesianGrid::unstore(DataPoint p){
     cells.extract(index1D);
 }
 
-void CartesianGrid::compute(){
-    //nothing to do here
+void CartesianGrid::compute() {
+    uint32_t now = millis();
+    u8g2.clear();
+    for (int x = 0; x < 128; ++x) {
+        for (int y = 0; y < 64; ++y) {
+            uint32_t age = now - lastUpdate[x][y];
+            if (age > 0 && occupancy[x][y] > 0) {
+                int decay = age / 100; // e.g., reduce every 100ms
+                occupancy[x][y] = (occupancy[x][y] > decay) ? occupancy[x][y] - decay : 0;
+            }
+            if(occupancy[x][y] > 50){
+                u8g2.drawPixel(x,y);
+            }
+        }
+    }
 }
 
 void CartesianGrid::clear(){
