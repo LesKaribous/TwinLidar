@@ -151,7 +151,21 @@ void onIntercomRequest(Request& req){
         //Console::println("occupancyMap");
         //Console::println(oM);
         req.reply(oM);
-    }else if (command.startsWith("on")) ///displayIntercom
+    }else if (command.startsWith("team")) ///color(0 or 1) //Blue or yellow
+    {   
+        int openBracket = command.indexOf("(");
+        int closedBracket = command.indexOf(")");
+        if(openBracket == -1 || closedBracket == -1)return;
+        String argString = command.substring(openBracket + 1, closedBracket);
+        bool yellow = argString.startsWith("Y");
+        bool blue = argString.startsWith("B");
+        if(!yellow && !blue) return;
+
+        pixel.setTeamColor(yellow);
+        lidar.setStaticMap(yellow); //true = YELLOW, false = BLUE
+        //delay(1000);
+    }
+    else if (command.startsWith("on")) ///displayIntercom
     {
         pixel.setMode(Pixel::INTERCOM);
         Console::println("displayIntercom");

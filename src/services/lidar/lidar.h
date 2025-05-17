@@ -15,6 +15,9 @@ public:
     int getCount(int angle, bool absolute=true);
     int getDistance(int angle, bool absolute=true);
 
+    bool isStaticOccupied(int x, int y);
+    void setStaticMap(bool staticMap); //true = YELLOW, false = BLUE
+
     void setPosition(float x, float y, float theta);
     Vec3 getPosition();
 
@@ -25,6 +28,7 @@ private:
     LD06 sensor;
     U8G2_SH1106_128X64_NONAME_F_HW_I2C  u8g2;
     float m_x, m_y, m_theta;
+    bool staticMap = true; ///true = YELLOW, false = BLUE 
 
 private:
     SERVICE(Lidar)

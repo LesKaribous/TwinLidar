@@ -13,11 +13,13 @@ void Pixel::onUpdate(){
     if ( millis() - lastDraw > Settings::REFRESH_DELAY) {
             lastDraw = millis();
 
-            if (m_currentMode == INTERCOM)
-                drawIntercom(Intercom::instance().isConnected());
-            else if (m_currentMode == LIDAR)
-                drawLidar(Lidar::instance());
+            if (m_currentMode == INTERCOM){
+                if(millis() < 5000 || !Intercom::instance().isConnected()) drawIntercom(Intercom::instance().isConnected());
+                else drawColor(teamColor);
 
+            }else if (m_currentMode == LIDAR){
+                drawLidar(Lidar::instance());
+            }
             pixels.show();
     }
 }
@@ -26,10 +28,35 @@ void Pixel::setMode(RingState mode){
     m_currentMode = mode;
 }
 
-void Pixel::setFullColor(long unsigned int color){
+void Pixel::setFullColor(long unsigned int color, bool show){
     for (size_t i = 0; i < Settings::NUM_PIXELS; i++){
         ledColor[i] = color;
         pixels.setPixelColor(i, ledColor[i]);
+    }
+
+    if(show) pixels.show();
+}
+
+
+void Pixel::drawColor(bool state){
+    if (millis() - lastblink > (state ? Settings::BRIGHTNESS_DELAY : Settings::BRIGHTNESS_DELAY /2)) {
+        
+        lastblink = millis();
+
+        if(state) setFullColor(teamColorA);
+        else setFullColor(teamColorB);
+
+
+        if(light > Settings::BRIGHTNESS || light <= Settings::MINBRIGHTNESS) blinkState = !blinkState;
+        if(blinkState) light += Settings::BRIGHTNESS_STEP;
+        else light -= Settings::BRIGHTNESS_STEP;
+
+        pixels.clear(); 
+        // Draw pixels :
+        pixels.setBrightness(light);
+        for (size_t i = 0; i < Settings::NUM_PIXELS; i++){
+            pixels.setPixelColor(i, ledColor[i]);
+        }
     }
 }
 

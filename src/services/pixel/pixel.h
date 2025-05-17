@@ -18,8 +18,13 @@ public:
 
     void setMode(RingState state);
     void drawLidar(Lidar& lidar);
+    void drawColor(bool state);
     void drawIntercom(bool state);
-    void setFullColor(long unsigned int);
+    void setFullColor(long unsigned int, bool show=false);
+
+    void setTeamColor(bool color){
+        teamColor = color;
+    }
 
     Pixel(): Service(ID_NEOPIXEL){};
     SERVICE(Pixel)
@@ -28,6 +33,10 @@ private:
     RingState m_currentMode = INTERCOM;
 
     Adafruit_NeoPixel pixels = Adafruit_NeoPixel(Settings::NUM_PIXELS, Pin::PIXELS, NEO_GRB + NEO_KHZ800);
+
+    int teamColorA = 0xFFFF00; //true = YELLOW, false = BLUE
+    int teamColorB = 0x0000FF; //true = YELLOW, false = BLUE
+    bool teamColor = true; //true = YELLOW, false = BLUE
 
     int ledColor[Settings::NUM_PIXELS];
 

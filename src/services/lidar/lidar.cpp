@@ -8,6 +8,54 @@
 #include "ld06.h"
 #include <algorithm>
 
+//Yellow
+constexpr uint8_t m_static_map_A[GRID_WIDTH][GRID_HEIGHT] = {
+  {1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1},
+  {0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1},
+  {0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1},
+  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+  {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+  {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+  {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+  {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+  {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+  {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+  {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1},
+  {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1},
+  {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1},
+  {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1},
+  {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+  {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+  {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+  {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+  {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+  {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+};
+
+//Blue
+constexpr uint8_t m_static_map_B[GRID_WIDTH][GRID_HEIGHT] = {
+  {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+  {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+  {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+  {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+  {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+  {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+  {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1},
+  {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1},
+  {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1},
+  {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1},
+  {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+  {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+  {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+  {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+  {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+  {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+  {0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1},
+  {0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1},
+  {1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1}
+};
+
 
 //U8G2_SH1106_128X64_NONAME_1_HW_I2C u8g2(U8G2_R2,Pin::ScreenSCL,Pin::ScreenSDA);
 
@@ -77,6 +125,20 @@ int Lidar::getDistance(int angle, bool absolute){
 	else return sensor.getDistanceAtAngle(angle+m_theta);
 }
 
+void Lidar::setStaticMap(bool staticMap){
+	this->staticMap = staticMap;
+}
+
+bool Lidar::isStaticOccupied(int x, int y){
+	if(staticMap){
+   		return (x >= 0 && x < GRID_WIDTH && y >= 0 && y < GRID_HEIGHT && m_static_map_A[x][y] > 0);
+	}else{
+
+		return (x >= 0 && x < GRID_WIDTH && y >= 0 && y < GRID_HEIGHT && m_static_map_B[x][y] > 0);
+	}
+
+}
+
 int Lidar::getCount(int angle, bool absolute){
 	if(absolute) return sensor.getCountAtAngle(angle);
 	else return sensor.getCountAtAngle(angle+m_theta);
@@ -103,7 +165,7 @@ BinaryPayload Lidar::getOccupancyMap() {
     int bitIndex = 0;
     for (int y = 0; y < GRID_HEIGHT; ++y) {
         for (int x = 0; x < GRID_WIDTH; ++x) {
-            if (grid->isOccupied(x, y)) {
+            if (grid->isOccupied(x, y) || isStaticOccupied(x, y)) {
                 int byteIndex = bitIndex / 8;
                 int bitInByte = bitIndex % 8;
                 packed[byteIndex] |= (1 << bitInByte);
@@ -151,7 +213,7 @@ void Lidar::drawOccupancyGrid(){
 	/**/
 	for (int x = 0; x < GRID_WIDTH; ++x) {
         for (int y = 0; y < GRID_HEIGHT; ++y) {
-			if(grid->isOccupied(x,y)){
+			if(grid->isOccupied(x,y) || isStaticOccupied(x,y)){
 				//u8g2.drawPixel(x,y);
 				u8g2.drawBox(x * SCREEN_WIDTH/GRID_WIDTH, y*SCREEN_HEIGHT/GRID_HEIGHT, SCREEN_WIDTH/GRID_WIDTH, SCREEN_HEIGHT/GRID_HEIGHT);
 			}
