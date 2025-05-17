@@ -1,6 +1,9 @@
 #include "grid.h"
 #include "pin.h"
 #include <Arduino.h>
+#include <math.h>
+#include "utils/timer/timer.h"
+#include "os/console.h"
 
 PolarGrid::PolarGrid() : AbstractGrid(POLAR){
     setSectorsResolution(_sectorResolution);
@@ -102,112 +105,93 @@ void PolarGrid::Sector::remove(const DataPoint& p){
 }
 
 
-CartesianGrid::CartesianGrid() : AbstractGrid(CARTESIAN), u8g2(U8G2_R0, Pin::ScreenSCL, Pin::ScreenSDA){
-    _gridResolution = 100;   //mm
-    _gridWidth = 3000;
-    _gridHeight = 2000;
-    _gridCol = _gridWidth / _gridResolution;      //mm
-    _gridRow = _gridHeight / _gridResolution;     //mm
-    u8g2.begin();
-    u8g2.clear();
+
+
+
+
+/**************************************
+        Cartesian   Grid
+***************************************/
+
+CartesianGrid::CartesianGrid() : AbstractGrid(CARTESIAN){
+    clear();
 }
 
-
-bool CartesianGrid::isOccupied(int x, int y) {
-    int index1D = y * _gridCol + x;
-    return cells.find(index1D) != cells.end();
+void CartesianGrid::setGridSize(float w, float h) {
+    _gridWidth = w;
+    _gridHeight = h;
 }
 
+void CartesianGrid::setMode(GridMode mode) {
+    _mode = mode;
+}
 
-//traverse occupancy map from x, y in the theta direction
-float CartesianGrid::getDistance(float x, float y, float theta) {
-// Direction vector
-    float dx = cos(theta);
-    float dy = sin(theta);
-
-    // Current position
-    float cx = x;
-    float cy = y;
-
-    while (cx >= 0 && cx < _gridCol && cy >= 0 && cy < _gridRow) {
-        int ix = static_cast<int>(round(cx));
-        int iy = static_cast<int>(round(cy));
-
-        // Check the current cell and its immediate neighbors
-        for (int nx = ix - 1; nx <= ix + 1; ++nx) {
-            for (int ny = iy - 1; ny <= iy + 1; ++ny) {
-                if (nx >= 0 && nx < _gridCol && ny >= 0 && ny < _gridRow && isOccupied(nx, ny)) {
-                    // Calculate and return the distance
-                    float distance = sqrt(pow(x - nx, 2) + pow(y - ny, 2));
-                    return distance;
-                }
-            }
+void CartesianGrid::clear() {
+    for (int x = 0; x < GRID_WIDTH; ++x)
+        for (int y = 0; y < GRID_HEIGHT; ++y) {
+            occupancy[x][y] = 0;
+            lastUpdate[x][y] = 0;
         }
-
-        // Move to the next cell in the direction of the ray
-        cx += dx;
-        cy += dy;
-    }
-
-    // Return -1 if no occupied cells were found
-    return -1;
 }
 
-void CartesianGrid::store(DataPoint p) {
-    int xi = (p.x + _gridWidth / 2.0f) / _gridResolution;
-    int yi = (p.y + _gridHeight / 2.0f) / _gridResolution;
-
-    if (xi >= 0 && xi < 128 && yi >= 0 && yi < 64) {
-        occupancy[xi][yi] = 255; // full occupancy
-        lastUpdate[xi][yi] = millis(); // mark time
-    }
+int CartesianGrid::worldToGridX(float x) {
+    return int((x * GRID_WIDTH) / _gridWidth);
 }
 
-void CartesianGrid::unstore(DataPoint p){
+int CartesianGrid::worldToGridY(float y) {
+    return int((y * GRID_HEIGHT) / _gridHeight );
+}
 
-    int index_x = std::min(std::max( static_cast<int>(round(p.x/_gridResolution)),0), _gridCol);
-    int index_y = std::min(std::max( static_cast<int>(round(p.y/_gridResolution)),0), _gridRow);
+void CartesianGrid::store(DataPoint point) {
+    int xi = worldToGridX(point.x);
+    int yi = worldToGridY(point.y);
 
-    int index1D = (index_y * _gridCol) + index_x;
-
-    cells[index1D] = false;
-    cells.extract(index1D);
+    if (xi >= 0 && xi < GRID_WIDTH && yi >= 0 && yi < GRID_HEIGHT) {
+        occupancy[xi][yi] = 255;
+        lastUpdate[xi][yi] = millis();
+        //Console::info() << "store: " << xi << "," << yi << " : " << occupancy[xi][yi] << "\n";
+    }
 }
 
 void CartesianGrid::compute() {
     uint32_t now = millis();
-    u8g2.clear();
-    for (int x = 0; x < 128; ++x) {
-        for (int y = 0; y < 64; ++y) {
+    for (int x = 0; x < GRID_WIDTH; ++x) {
+        for (int y = 0; y < GRID_HEIGHT; ++y) {
             uint32_t age = now - lastUpdate[x][y];
             if (age > 0 && occupancy[x][y] > 0) {
-                int decay = age / 100; // e.g., reduce every 100ms
+                int decay = age / 1000; // Decay 1 per 100ms
                 occupancy[x][y] = (occupancy[x][y] > decay) ? occupancy[x][y] - decay : 0;
-            }
-            if(occupancy[x][y] > 50){
-                u8g2.drawPixel(x,y);
             }
         }
     }
 }
 
-void CartesianGrid::clear(){
-    cells.clear();
-}
+// Auto-generated occupancy map
+const uint8_t occupancy_map[20][13] = {
+  {1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1},
+  {0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1},
+  {0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1},
+  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+  {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+  {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+  {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+  {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+  {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+  {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+  {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1},
+  {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1},
+  {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1},
+  {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1},
+  {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+  {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+  {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+  {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+  {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+  {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+};
 
-void CartesianGrid::setResolution(float cellSize){
-    _gridResolution = cellSize;
-    _gridCol = _gridWidth / _gridResolution;      //mm
-    _gridRow = _gridHeight / _gridResolution;     //mm
-}
 
-void CartesianGrid::setGridSize(float w, float h){
-    _gridHeight = w;
-    _gridWidth = h;
-    _gridCol = _gridWidth / _gridResolution;      //mm
-    _gridRow = _gridHeight / _gridResolution;     //mm
-}
-
-void CartesianGrid::setMode(GridMode mode){
-    _mode = mode;
+bool CartesianGrid::isOccupied(int x, int y) {
+    //return (x >= 0 && x < GRID_WIDTH && y >= 0 && y < GRID_HEIGHT && occupancy[x][y] > 25);
+    return (x >= 0 && x < GRID_WIDTH && y >= 0 && y < GRID_HEIGHT && occupancy_map[x][y] > 0);
 }

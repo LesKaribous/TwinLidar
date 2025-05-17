@@ -51,7 +51,7 @@ void onUpdate(){
 void onIntercomRequest(Request& req){
     String command = req.getContent();
 
-    if (command.startsWith("setRobotPosition"))
+    if (command.startsWith("pos")) //position
     {
         int openBracket = command.indexOf("(");
         int closedBracket = command.indexOf(")");
@@ -82,7 +82,7 @@ void onIntercomRequest(Request& req){
             req.reply("OK");
         }
         //req.reply("NOK");
-    }else if (command.startsWith("checkObstacle"))
+    }else if (command.startsWith("ob")) //obstacle
     {
         int openBracket = command.indexOf("(");
         int closedBracket = command.indexOf(")");
@@ -136,7 +136,7 @@ void onIntercomRequest(Request& req){
             req.reply((a && ca) || (b && cb) || (c && cc) || (d && cd) || (e && ce) || (f && cf) || (g && cg) || (h && ch) || (i && ci));
 
         }else req.reply(0);
-}else if (command.startsWith("getDistance"))
+}else if (command.startsWith("gD")) //gD getDistance
     {
         int openBracket = command.indexOf("(");
         int closedBracket = command.indexOf(")");
@@ -145,13 +145,19 @@ void onIntercomRequest(Request& req){
         int angle = command.substring(openBracket + 1, closedBracket).toInt();
         req.reply(lidar.getDistance(angle));
     }
-	else if (command.startsWith("displayIntercom"))
+	else if (command.startsWith("oM")) ///occupancyMap
+    {   
+        String oM = compressData(lidar.getOccupancyMap());
+        //Console::println("occupancyMap");
+        //Console::println(oM);
+        req.reply(oM);
+    }else if (command.startsWith("on")) ///displayIntercom
     {
         pixel.setMode(Pixel::INTERCOM);
         Console::println("displayIntercom");
         req.reply("OK");
     }
-    else if (command.startsWith("displayLidar"))
+    else if (command.startsWith("off")) //displayLidar
     {
         pixel.setMode(Pixel::LIDAR);
         Console::println("displayLidar");

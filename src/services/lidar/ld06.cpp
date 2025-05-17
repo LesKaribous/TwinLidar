@@ -121,6 +121,7 @@ void LD06::readScan(){
     }
     
     if(_usePolarGrid) polar_grid.compute();
+    if(_useCartesianGrid) cart_grid.compute();
 
 }
 
@@ -144,8 +145,7 @@ void LD06::resetStats(){
         scan.pop_front();
     }
 
-
-    if(_useCartesianGrid)cart_grid.clear();
+    //if(_useCartesianGrid)cart_grid.clear();
     if(_usePolarGrid)polar_grid.clear();
 }
 

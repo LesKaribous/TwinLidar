@@ -62,6 +62,9 @@ public:
     inline float getAngleStep() const { return _angleStep; }
     inline float getTimeStamp() const { return _timeStamp; }
 
+    CartesianGrid* getCartesianGrid() { return &cart_grid; }
+    PolarGrid* getPolarGrid() { return &polar_grid; }
+
 private:
     bool readDataCRC();
     bool readDataNoCRC();

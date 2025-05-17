@@ -1,8 +1,9 @@
 #pragma once
 #include "geom.h"
+#include "pin.h"
 #include <vector>
 #include <unordered_map>
-#include <U8g2lib.h>
+
 
 #define MAX_POINTS 50
 
@@ -56,36 +57,35 @@ private:
 };
 
 
-class CartesianGrid : public AbstractGrid{
-public:
 
-    enum GridMode{
-        CORNER //rectangle start in up left corner
+
+class CartesianGrid : public AbstractGrid {
+public:
+    enum GridMode {
+        CORNER // rectangle origin is top-left
     };
 
     CartesianGrid();
     void store(DataPoint) override;
-    void unstore(DataPoint) override;
+    void unstore(DataPoint) override {}
     void compute() override;
     void clear() override;
-    float getDistance(float x, float y, float theta);
+
+    float getDistance(float x, float y, float theta); // optional
     void setGridSize(float w, float h);
     void setResolution(float cellSize);
     void setMode(GridMode mode);
     bool isOccupied(int x, int y);
-    
-private:
-    std::unordered_map<int, bool> cells; //index and count
-    float _gridResolution;   //mm
-    int _gridRow;
-    int _gridCol;
-    int _gridHeight;
-    int _gridWidth;
 
-    uint8_t occupancy[128][64];
-    uint32_t lastUpdate[128][64];
-    U8G2_SSD1306_128X64_NONAME_1_SW_I2C u8g2;
+private:
+    uint8_t occupancy[GRID_WIDTH][GRID_HEIGHT];
+    uint32_t lastUpdate[GRID_WIDTH][GRID_HEIGHT];
+
+    float _gridWidth = 3000; // mm
+    float _gridHeight = 2000; // mm
 
     GridMode _mode = CORNER;
-};
 
+    int worldToGridX(float x);
+    int worldToGridY(float y);
+};

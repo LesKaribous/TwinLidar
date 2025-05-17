@@ -28,6 +28,7 @@ public:
     void setConnectLostCallback(callback_ptr callback);
     void setRequestCallback(requestCallback_ptr callback);
     void setConnectionSuccessCallback(callback_ptr callback);
+    void compressData(const uint8_t* data, int size);
 
     inline bool isConnected(){return _connected;}
 
