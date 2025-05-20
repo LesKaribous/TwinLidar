@@ -165,13 +165,13 @@ void onIntercomRequest(Request& req){
         lidar.setStaticMap(yellow); //true = YELLOW, false = BLUE
         //delay(1000);
     }
-    else if (command.startsWith("on")) ///displayIntercom
+    else if (command.startsWith("off")) ///displayIntercom
     {
         pixel.setMode(Pixel::INTERCOM);
         Console::println("displayIntercom");
         req.reply("OK");
     }
-    else if (command.startsWith("off")) //displayLidar
+    else if (command.startsWith("on")) //displayLidar
     {
         pixel.setMode(Pixel::LIDAR);
         Console::println("displayLidar");
